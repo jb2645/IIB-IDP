@@ -1,11 +1,9 @@
 from machine import Pin, PWM
 import time
-from machine import Pin
 
-#4 classes needed
-#Motor setup, Main drive, Line sensor, line follower
+
  
-class Motor:
+class Motor: #Motor setup
     def __init__(self, pwm_pin, dir_pin):
         self.pwm = PWM(Pin(pwm_pin))
         self.dir = Pin(dir_pin, Pin.OUT)
@@ -53,10 +51,22 @@ class LineSensors:
     def read_junction(self):
         return self.fleft.value(), self.fright.value()
         
-    #need to work out a method of junction detection here
+    
     def junction_detection(self):
         fl,fr = self.read_junction()
-        return (fl==1) or (fr==1)
+        l,r = self.read_line()
+        state = 'clear'
+        
+        if (fl==1) or (fr==1):
+            if (l==0) and (r==0):
+                state = 'TURN'
+                return state,fl,fr
+                
+            else:
+                state = 'NODE'
+                return state,fl,fr
+                
+            
         
 
 class LineFollow:
