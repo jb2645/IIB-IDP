@@ -1,5 +1,6 @@
 #Rover class definitions
 from machine import Pin
+from "General Component Classes.py" import *
 
 class Rover:
     def __init__(self, motorL, motorR):
@@ -9,13 +10,19 @@ class Rover:
         
         #define all other sensors when decided
         
-        
+    def drive(self, left_speed, right_speed):
+        self.left.set_speed(left_speed)
+        self.right.set_speed(right_speed)
+
+    def stop(self):
+        self.left.stop()
+        self.right.stop()
 
     def getTestVoltage(self):
         return self.testvoltagein
     
     def DetermineColour(self):
-        VinPin = Pin(26, Pin.IN)
+        VinPin = Pin(26, Pin.IN)       #fetch tested voltage value from GPIO pin 26
         testvoltagein = VinPin.value()
         #expected voltages for given resistances - 0.029 - 100 ohm, 0.273 1kohm, 1.5 10kohm, 2.727 100kohm
         self.testvoltagein = testvoltagefetch()

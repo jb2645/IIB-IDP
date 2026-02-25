@@ -2,42 +2,47 @@ from machine import Pin, PWM
 import time
 from machine import Pin
 
+from "General Component Classes.py" import *
+from "Rover Class Creation.py" import 
+
 #4 classes needed
 #Motor setup, Main drive, Line sensor, line follower
  
-class Motor:
-    def __init__(self, pwm_pin, dir_pin):
-        self.pwm = PWM(Pin(pwm_pin))
-        self.dir = Pin(dir_pin, Pin.OUT)
-        self.pwm.freq(1000)
-    
-    def set_speed(self, speed):
-        
-        speed = max(min(speed,100),-100)
-        
-        if speed >= 0:
-            self.dir.value(1)
-        else:
-            self.dir.value(0)
-        
-        duty = int(abs(speed)*655)
-        self.pwm.duty_u16(duty)
-        
-    def stop(self):
-        self.pwm.duty_u16(0)
-        
-class MainDrive:
-    def __init__(self, left_motor, right_motor):
-        self.left = left_motor
-        self.right = right_motor
-        
-    def drive(self, left_speed, right_speed):
-        self.left.set_speed(left_speed)
-        self.right.set_speed(right_speed)
 
-    def stop(self):
-        self.left.stop()
-        self.right.stop()
+
+#class Motor:
+#    def __init__(self, pwm_pin, dir_pin):
+#        self.pwm = PWM(Pin(pwm_pin))
+#        self.dir = Pin(dir_pin, Pin.OUT)
+#        self.pwm.freq(1000)
+#    
+#    def set_speed(self, speed):
+#        
+#        speed = max(min(speed,100),-100)
+#        
+#        if speed >= 0:
+#            self.dir.value(1)
+#        else:
+#            self.dir.value(0)
+#        
+#        duty = int(abs(speed)*655)
+ #       self.pwm.duty_u16(duty)
+ #       
+ #   def stop(self):
+ #       self.pwm.duty_u16(0)
+        
+#class MainDrive:
+#    def __init__(self, left_motor, right_motor):
+#        self.left = left_motor
+#        self.right = right_motor
+        
+##    def drive(self, left_speed, right_speed):
+#        self.left.set_speed(left_speed)
+#        self.right.set_speed(right_speed)
+
+ #   def stop(self):
+  #      self.left.stop()
+   #     self.right.stop()
 
 class LineSensors:
     def __init__(self,fleft_pin,left_pin,right_pin,fright_pin):
@@ -97,7 +102,8 @@ def main():
     left_motor = Motor('''pwm pin, direction pin''')
     right_motor = Motor('''pwm pin, direction pin''')
     
-    drive = MainDrive(left_motor, right_motor)
+ #   drive = MainDrive(left_motor, right_motor)
+     drive = Rover(left_motor, right_motor) # This will need to be updated later when rover class completed
 
     sensors = LineSensors(['''pin1,pin2,pin3,pin4'''])
     
