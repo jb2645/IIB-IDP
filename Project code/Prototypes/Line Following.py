@@ -1,16 +1,14 @@
 from machine import Pin, PWM
 import time
-from machine import Pin
+
 
 from "General Component Classes.py" import *
 from "Rover Class Creation.py" import 
 
-#4 classes needed
-#Motor setup, Main drive, Line sensor, line follower
  
 
 
-#class Motor:
+#class Motor: #Motor setup
 #    def __init__(self, pwm_pin, dir_pin):
 #        self.pwm = PWM(Pin(pwm_pin))
 #        self.dir = Pin(dir_pin, Pin.OUT)
@@ -58,10 +56,22 @@ class LineSensors:
     def read_junction(self):
         return self.fleft.value(), self.fright.value()
         
-    #need to work out a method of junction detection here
+    
     def junction_detection(self):
         fl,fr = self.read_junction()
-        return (fl==1) or (fr==1)
+        l,r = self.read_line()
+        state = 'CLEAR'
+        
+        if (fl==1) or (fr==1):
+            if (l==0) and (r==0):
+                state = 'TURN'
+                return state
+                
+            else:
+                state = 'NODE'
+                return state
+                
+            
         
 
 class LineFollow:
@@ -110,5 +120,13 @@ def main():
     follower = LineFollow(drive, sensors)
     
     while True:
+        state = sensors.junction_detection()
         active = follower.update()
+        
+        if state!='CLEAR':
+            if state=='NODE':
+                #position initialisation
+            elif state=='TURN':
+                left_value, right_value = sensors.read_junction()
+        
         time.sleep(0.01)
