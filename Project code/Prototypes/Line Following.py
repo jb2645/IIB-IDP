@@ -55,16 +55,16 @@ class LineSensors:
     def junction_detection(self):
         fl,fr = self.read_junction()
         l,r = self.read_line()
-        state = 'clear'
+        state = 'CLEAR'
         
         if (fl==1) or (fr==1):
             if (l==0) and (r==0):
                 state = 'TURN'
-                return state,fl,fr
+                return state
                 
             else:
                 state = 'NODE'
-                return state,fl,fr
+                return state
                 
             
         
@@ -114,5 +114,13 @@ def main():
     follower = LineFollow(drive, sensors)
     
     while True:
+        state = sensors.junction_detection()
         active = follower.update()
+        
+        if state!='CLEAR':
+            if state=='NODE':
+                #position initialisation
+            elif state=='TURN':
+                left_value, right_value = sensors.read_junction()
+        
         time.sleep(0.01)
