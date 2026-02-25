@@ -107,6 +107,34 @@ class LineFollow:
     self.drive.drive(left_speed,right_speed)
     return active
 
+
+class Position:
+    def __init__():
+        self.row = row #[(0,1,2,3);(0,1,2,3)]  0->1,3  1->0,2 2->1,3,R 
+        self.heading = heading  #[N,E,S,W]
+        self.node = node
+        self.turn = turn
+        
+    def on_node(self):
+        if self.heading == 0 or self.heading==3: # 0=North 3=West
+            self.node+=1
+            
+        elif self.heading==1 or self.heading ==2: # 1=East  2=South
+            self.node-=1
+            
+    def on_turn_end(self):
+        if self.turn == 0: #right
+            self.heading = (self.heading+1)%4
+            
+            
+        elif self.turn == 1: #left
+            self.heading = (self.heading-1)%4
+            
+            
+    def on_turn_node(self):
+        pass
+    
+
 def main():
     
     left_motor = Motor('''pwm pin, direction pin''')
@@ -125,8 +153,15 @@ def main():
         
         if state!='CLEAR':
             if state=='NODE':
-                #position initialisation
+                #position initalisation
+                
             elif state=='TURN':
                 left_value, right_value = sensors.read_junction()
+                
+                if left_value>right_value:
+                    #turn left
+                    
+                else:
+                    #turn right 
         
         time.sleep(0.01)
