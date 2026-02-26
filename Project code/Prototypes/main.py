@@ -43,9 +43,9 @@ def button_pressed(pin):
     running = !running
     ##testing
     print("Button Pressed!")
-    
-    
+
 button.irq(trigger=Pin.IRQ_RISING, handler=button_pressed)
+
 
 
     

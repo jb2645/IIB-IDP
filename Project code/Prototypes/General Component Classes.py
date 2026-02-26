@@ -31,7 +31,15 @@ class Actuator:
 
 class Optocoupler:
     def __init__(self):
-        self.outerL = 
+        self.OuterL = Pin(OuterL, Pin.IN, Pin.PULL_DOWN)
+        self.OuterR = Pin(OuterR, Pin.IN, Pin.PULL_DOWN)
+        self.InnerL = Pin(InnerL, Pin.IN, Pin.PULL_DOWN)
+        self.InnerR = Pin(InnerR, Pin.IN, Pin.PULL_DOWN)
+        
+        
+    def Optocoupler.getvalues(self):
+        values = [self.OuterL.value(), self.OuterR.value(), self.InnerL.value(), self.InnerR.value()]
+        return values
 
         
         

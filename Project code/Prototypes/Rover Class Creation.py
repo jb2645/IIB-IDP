@@ -11,11 +11,24 @@ from libs.tcs3472_micropython.tcs3472 import tcs3472
 
 class Rover:
     def __init__(self, motorL, motorR):
+        self.state = "Travel"
         self.left = motorL
         self.right = motorR
         self.testvoltagein = 0
         
         #define all other sensors when decided
+        
+    def SensingState(self):
+        self.state = "Sensing"
+        
+    def TravelState(self):
+        self.state = "Travel"
+        
+    def PickupState(self):
+        self.state = "Pickup"
+        
+    def GetRoverState(self):
+        return self.state
         
     def drive(self, left_speed, right_speed):
         self.left.set_speed(left_speed)
@@ -47,7 +60,10 @@ class Rover:
         
     def pickup(self):
         
-        colour = Determinecolour()
+        colour = self.Determinecolour()
+        #if colour == "Blue":
+        #    destination =
+        
         
     def putdown(self):
         
