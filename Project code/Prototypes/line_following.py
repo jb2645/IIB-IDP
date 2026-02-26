@@ -1,8 +1,8 @@
 from machine import Pin, PWM
 import time
 
-from "General Component Classes.py" import *
-from "Rover Class Creation.py" import 
+from general_component_classes import *
+from rover_class_creation import * 
 
 #class Motor: #Motor setup
 #    def __init__(self, pwm_pin, dir_pin):
