@@ -60,16 +60,16 @@ class LineSensors:
     def junction_detection(self):
         fl,fr = self.read_junction()
         l,r = self.read_line()
-        state = 'CLEAR'
         
         if (fl==1) or (fr==1):
             if (l==0) and (r==0):
-                state = 'TURN'
-                return state
+                return 'TURN'
                 
             else:
-                state = 'NODE'
-                return state
+                return 'NODE'
+            
+        else:
+            return 'CLEAR'
                 
             
         
@@ -101,42 +101,53 @@ class LineFollow:
         self.drive.drive(self.base_speed + l * self.correction, self.base_speed + r * self.correction)
         self.last_direction = 0
         
-    left_speed = self.base_speed - correction
-    right_speed = self.base_speed + correction
-    
-    self.drive.drive(left_speed,right_speed)
-    return active
+
+        return active
 
 
 class Position:
-    def __init__():
-        self.row = row #[(0,1,2,3);(0,1,2,3)]  0->1,3  1->0,2 2->1,3,R 
-        self.heading = heading  #[N,E,S,W]
-        self.node = node
+    def __init__(self,grid):
+        self.grid = grid #((3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(x,5),(x,5))
+        self.row = grid[0]
+        self.heading = 0  #[N,E,S,W]
+        self.node = 2
         self.turn = turn
         
+    def find_row(self):
+        if self.heading == 0 or self.heading == 1:
+            return grid[self.row][0]
+        
+        if self.heading == 2 or self.heading == 3:
+            return grid[self.row][1]
+     
     def on_node(self):
         if self.heading == 0 or self.heading==3: # 0=North 3=West
             self.node+=1
             
         elif self.heading==1 or self.heading ==2: # 1=East  2=South
             self.node-=1
+
             
-    def on_turn_end(self):
-        if self.turn == 0: #right
+            
+    def turn_end(self,turn):
+        self.row = self.find_row()
+        
+        if turn == 0: #right
             self.heading = (self.heading+1)%4
             
             
-        elif self.turn == 1: #left
+        elif turn == 1: #left
             self.heading = (self.heading-1)%4
             
             
-    def on_turn_node(self):
-        pass
+    def turn_node(self):
+        if self.node == 6:
     
 
 def main():
-    
+    grid = [(3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(9,5),(9,5)]
+    bays = [1,2,6,7]
+    pos = Position(grid)
     left_motor = Motor('''pwm pin, direction pin''')
     right_motor = Motor('''pwm pin, direction pin''')
     
@@ -149,19 +160,27 @@ def main():
     
     while True:
         state = sensors.junction_detection()
-        active = follower.update()
+        follower.update()
         
         if state!='CLEAR':
             if state=='NODE':
-                #position initalisation
+                row = pos.find_row():
+                    if row in bays or row==0:
+                        pos.on_node()
+                    elif row==2:
+                        #turn to row 4
                 
             elif state=='TURN':
                 left_value, right_value = sensors.read_junction()
                 
                 if left_value>right_value:
                     #turn left
+                    pos.turn_end(1)
                     
                 else:
+                    pos.turn_end(0)
                     #turn right 
         
         time.sleep(0.01)
+        
+main()
