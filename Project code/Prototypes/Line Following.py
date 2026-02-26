@@ -1,12 +1,8 @@
 from machine import Pin, PWM
 import time
 
-
 from "General Component Classes.py" import *
 from "Rover Class Creation.py" import 
-
- 
-
 
 #class Motor: #Motor setup
 #    def __init__(self, pwm_pin, dir_pin):
@@ -167,3 +163,20 @@ def main():
                     #turn right 
         
         time.sleep(0.01)
+
+
+
+
+
+def SensingInterrupt():
+    if drive.GetRoverState() == "Sensing":
+        OuterSensorGPIOnum = 9
+        OuterSensor = Pin(OuterSensorGPIOnum, Pin.IN, Pin.PULL_DOWN)
+        OuterSensor.irq(handler = OuterSensor_irq)
+
+    else:
+        OuterSensor.irq(handler=None)
+
+def OuterSensor_irq():
+    CheckDistance = True
+
