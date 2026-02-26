@@ -1,12 +1,8 @@
 from machine import Pin, PWM
 import time
 
-
 from "General Component Classes.py" import *
 from "Rover Class Creation.py" import 
-
- 
-
 
 #class Motor: #Motor setup
 #    def __init__(self, pwm_pin, dir_pin):
@@ -148,13 +144,17 @@ def main():
     grid = [(3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(9,5),(9,5)]
     bays = [1,2,6,7]
     pos = Position(grid)
-    left_motor = Motor('''pwm pin, direction pin''')
-    right_motor = Motor('''pwm pin, direction pin''')
+
+    
+    left_motor = Motor(dirPin=4, PWMPin=5)#check values later
+    right_motor = Motor(dirPin=6, PWMPin=7)
     
  #   drive = MainDrive(left_motor, right_motor)
-     drive = Rover(left_motor, right_motor) # This will need to be updated later when rover class completed
-
-    sensors = LineSensors(['''pin1,pin2,pin3,pin4'''])
+    drive = Rover(left_motor, right_motor) # This will need to be updated later when rover class completed
+    
+    
+    #sensors = LineSensors(['''pin1,pin2,pin3,pin4'''])
+    sensors = Optocoupler(6, 7, 8, 9)      #check actual order of gpio pins
     
     follower = LineFollow(drive, sensors)
     
@@ -184,3 +184,22 @@ def main():
         time.sleep(0.01)
         
 main()
+
+
+
+
+
+def SensingInterrupt():
+    if drive.GetRoverState() == "Sensing":
+        OuterSensorGPIOnum = 9
+        OuterSensor = Pin(OuterSensorGPIOnum, Pin.IN, Pin.PULL_DOWN)
+        OuterSensor.irq(handler = OuterSensor_irq)
+
+    else:
+        OuterSensor.irq(handler=None)
+
+def OuterSensor_irq():
+    CheckDistance = True #may need callback function if sensors are not aligned
+
+    
+
