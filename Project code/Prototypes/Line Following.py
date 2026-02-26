@@ -178,5 +178,7 @@ def SensingInterrupt():
         OuterSensor.irq(handler=None)
 
 def OuterSensor_irq():
-    CheckDistance = True
+    CheckDistance = True #may need callback function if sensors are not aligned
+
+    
 

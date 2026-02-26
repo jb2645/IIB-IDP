@@ -1,5 +1,5 @@
 #Rover class definitions
-from machine import Pin
+from machine import Pin, ADC
 from "General Component Classes.py" import *
 
 from utime import sleep
@@ -42,9 +42,10 @@ class Rover:
         return self.testvoltagein
     
     def DetermineColour(self):
-        VinPin = Pin(26, Pin.IN)       #fetch tested voltage value from GPIO pin 26
-        testvoltagein = VinPin.value()
         #expected voltages for given resistances - 0.029 - 100 ohm, 0.273 1kohm, 1.5 10kohm, 2.727 100kohm   ####change this later
+        adc = ADC(26)    # sets GPIO 26 as analogue port in
+        valuein = adc.read_u16()      
+        testvoltagein = valuein * 3.3 / 65535           #converts analogue signal to voltage
         self.testvoltagein = testvoltagefetch()
         if self.testvoltagein > 0.02 and self.testvoltagein < 0.04:
             return "Blue"
