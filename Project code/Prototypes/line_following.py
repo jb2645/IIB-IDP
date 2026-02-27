@@ -4,68 +4,34 @@ import time
 from general_component_classes import *
 from rover_class_creation import * 
 
-#class Motor: #Motor setup
-#    def __init__(self, pwm_pin, dir_pin):
-#        self.pwm = PWM(Pin(pwm_pin))
-#        self.dir = Pin(dir_pin, Pin.OUT)
-#        self.pwm.freq(1000)
-#    
-#    def set_speed(self, speed):
+#class LineSensors:
+#    def __init__(self,fleft_pin,left_pin,right_pin,fright_pin):
+#        self.fleft = fleft_pin
+#        self.left = left_pin
+#        self.right = right_pin
+#        self.fright = fright_pin
 #        
-#        speed = max(min(speed,100),-100)
+ ##   
+ #   def read_line(self):
+ #       return self.left.value(), self.right.value()#
+#
+#    def read_junction(self):
+ #       return self.fleft.value(), self.fright.value()
 #        
-#        if speed >= 0:
-#            self.dir.value(1)
+    
+ #   def junction_detection(self):
+ #       fl,fr = self.read_junction()
+ #       l,r = self.read_line()
+#        
+#        if (fl==1) or (fr==1):
+#            if (l==0) and (r==0):
+#                return 'TURN'
+#                
+#            else:
+#                return 'NODE'
+#            
 #        else:
-#            self.dir.value(0)
-#        
-#        duty = int(abs(speed)*655)
- #       self.pwm.duty_u16(duty)
- #       
- #   def stop(self):
- #       self.pwm.duty_u16(0)
-        
-#class MainDrive:
-#    def __init__(self, left_motor, right_motor):
-#        self.left = left_motor
-#        self.right = right_motor
-        
-##    def drive(self, left_speed, right_speed):
-#        self.left.set_speed(left_speed)
-#        self.right.set_speed(right_speed)
-
- #   def stop(self):
-  #      self.left.stop()
-   #     self.right.stop()
-
-class LineSensors:
-    def __init__(self,fleft_pin,left_pin,right_pin,fright_pin):
-        self.fleft = fleft_pin
-        self.left = left_pin
-        self.right = right_pin
-        self.fright = fright_pin
-        
-    
-    def read_line(self):
-        return self.left.value(), self.right.value()
-
-    def read_junction(self):
-        return self.fleft.value(), self.fright.value()
-        
-    
-    def junction_detection(self):
-        fl,fr = self.read_junction()
-        l,r = self.read_line()
-        
-        if (fl==1) or (fr==1):
-            if (l==0) and (r==0):
-                return 'TURN'
-                
-            else:
-                return 'NODE'
-            
-        else:
-            return 'CLEAR'
+#            return 'CLEAR'
                 
             
         
@@ -148,13 +114,14 @@ def main():
     
     left_motor = Motor(dirPin=4, PWMPin=5)#check values later
     right_motor = Motor(dirPin=6, PWMPin=7)
-    
- #   drive = MainDrive(left_motor, right_motor)
-    drive = Rover(left_motor, right_motor) # This will need to be updated later when rover class completed
-    
-    
+
     #sensors = LineSensors(['''pin1,pin2,pin3,pin4'''])
     sensors = Optocoupler(6, 7, 8, 9)      #check actual order of gpio pins
+    
+ #   drive = MainDrive(left_motor, right_motor)
+    drive = Rover(left_motor, right_motor, Optocoupler) # This will need to be updated later when rover class completed
+    
+
     
     follower = LineFollow(drive, sensors)
     
@@ -175,18 +142,17 @@ def main():
                 
                 if left_value>right_value:
                     #turn left
+                    drive.turnleft()
                     pos.turn_end(1)
                     
                 else:
                     pos.turn_end(0)
+                    drive.turnright()
                     #turn right 
         
         time.sleep(0.01)
         
 main()
-
-
-
 
 
 def SensingInterrupt():
