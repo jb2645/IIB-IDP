@@ -1,4 +1,5 @@
 #Other class creation for interfacing with components
+from machine import Pin, PWM
 
 class Motor:
     def __init__(self, dirPin, PWMPin):
@@ -30,7 +31,7 @@ class Actuator:
         self.pwm.duty_u16(int(65535 * speed / 100))  # speed range 0-100 motor
 
 class Optocoupler:
-    def __init__(self, OuterL OuterR, InnerL, InnerR):
+    def __init__(self, OuterL, OuterR, InnerL, InnerR):
         self.OuterL = Pin(OuterL, Pin.IN, Pin.PULL_DOWN)
         self.OuterR = Pin(OuterR, Pin.IN, Pin.PULL_DOWN)
         self.InnerL = Pin(InnerL, Pin.IN, Pin.PULL_DOWN)

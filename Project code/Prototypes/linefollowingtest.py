@@ -1,7 +1,7 @@
 #Main Code
-from "General Component Classes.py" import *
-from "Linefollowing.py" import *
-from "General Component Classes.py" import *
+from general_component_classes import *
+from line_following import *
+from rover_class_creation import *
 from machine import Pin
 from utime import sleep
 
@@ -33,14 +33,14 @@ if __name__ == "__main__":
         follower.update()
         
         if state!='CLEAR':
-            if state=='NODE':
-                row = pos.find_row():
-                    if row in bays or row==0:
-                        pos.on_node()
-                    elif row==2:
-                        #turn to row 4
+            #if state=='NODE':
+            #    row = pos.find_row():
+            #    if row in bays or row==0:
+            #        pos.on_node()
+            #    elif row==2:
+            #        #turn to row 4
                 
-            elif state=='TURN':
+            if state=='TURN':
                 left_value, right_value = sensors.read_junction()
                 
                 if left_value>right_value:
@@ -72,7 +72,7 @@ if __name__ == "__main__":
 #define button press interrupt to stop/start program
             
 def button_pressed(pin):
-    running = !running
+    running = not running
     ##testing
     print("Button Pressed!")
 
