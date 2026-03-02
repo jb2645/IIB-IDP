@@ -19,7 +19,15 @@ Robot = Rover(motorL, motorR) #update as more components added
 
 if __name__ == "__main__":
     while running == False:
-        time.sleep(0.1)
+        pass
+
+    while running == True:
+        if Robot.GetRoverState() == "Travel":
+            #run line following program
+        elif Robot.GetRoverState() == "Sensing":
+            #run sensing routine
+
+            
             
     ####Main code#####
     

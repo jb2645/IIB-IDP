@@ -1,6 +1,6 @@
 #Rover class definitions
 from machine import Pin, ADC
-from general_component_classes import *
+from "General Component Classes.py" import *
 
 from utime import sleep
 from machine import Pin, SoftI2C, I2C
@@ -10,12 +10,11 @@ from libs.tcs3472_micropython.tcs3472 import tcs3472
 #from libs.DFRobot_TMF8x01.DFRobot_TMF8x01 import DFRobot_TMF8801, DFRobot_TMF8701    #shouldnt have this sensor?
 
 class Rover:
-    def __init__(self, motorL, motorR, Optocoupler):
+    def __init__(self, motorL, motorR):
         self.state = "Travel"
         self.left = motorL
         self.right = motorR
         self.testvoltagein = 0
-        self.Optocoupler = Optocoupler
         
         #define all other sensors when decided
         
@@ -61,42 +60,19 @@ class Rover:
             return "None"
         
     def pickup(self):
-        #linefollow until within 1cm
-        while self.getDistance("F") > 1:    #value to be determined later 
-            self.linefollow()
-
         
         colour = self.Determinecolour()
-        return colour
         #if colour == "Blue":
         #    destination =
         
         
     def putdown(self):
-        pass
         
     def moveforward(self):
-        pass
     
     def turnleft(self):
-        turned = False
-        while turned == False:
-            self.left.Foward(50)
-            self.right.reverse(20)   #adjust values later
-            sensorvalues = self.Optocoupler.getvalues()
-            if sensorvalues == [0, 0, 1, 1]:   #redefine as an interrupt
-                turned = False
-
+        
     def turnright(self):
-        turned = False
-        while turned == False:
-            self.right.Foward(50)
-            self.left.reverse(20)   #adjust values later
-            sensorvalues = self.Optocoupler.getvalues()
-            if sensorvalues == [0, 0, 1, 1]:
-                turned = False
-
-
         
         
         
