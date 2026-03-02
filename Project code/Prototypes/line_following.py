@@ -39,7 +39,7 @@ from rover_class_creation import *
 class LineFollow:
     def __init__(self, drive, sensors, base_speed=40, correction=20):
         self.drive = drive
-        self.sensor = sensors
+        self.sensors = sensors
         self.base_speed = base_speed
         self.correction = correction
         self.last_direction = 0
@@ -63,7 +63,7 @@ class LineFollow:
         self.drive.drive(self.base_speed + l * self.correction, self.base_speed + r * self.correction)
         self.last_direction = 0
         
-
+        active = 0
         return active
 
 
@@ -73,7 +73,7 @@ class Position:
         self.row = grid[0]
         self.heading = 0  #[N,E,S,W]
         self.node = 2
-        self.turn = turn
+        self.turn = 0#turn
         
     def find_row(self):
         if self.heading == 0 or self.heading == 1:
@@ -104,55 +104,56 @@ class Position:
             
     def turn_node(self):
         if self.node == 6:
+            pass
     
 
-def main():
-    grid = [(3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(9,5),(9,5)]
-    bays = [1,2,6,7]
-    pos = Position(grid)
-
+#def main():
+#    grid = [(3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(9,5),(9,5)]
+#    bays = [1,2,6,7]
+#    pos = Position(grid)##
+#
     
-    left_motor = Motor(dirPin=4, PWMPin=5)#check values later
-    right_motor = Motor(dirPin=6, PWMPin=7)
-
+ #   left_motor = Motor(dirPin=4, PWMPin=5)#check values later
+ #   right_motor = Motor(dirPin=6, PWMPin=7)
+#
     #sensors = LineSensors(['''pin1,pin2,pin3,pin4'''])
-    sensors = Optocoupler(6, 7, 8, 9)      #check actual order of gpio pins
+#    sensors = Optocoupler(6, 7, 8, 9)      #check actual order of gpio pins
     
  #   drive = MainDrive(left_motor, right_motor)
-    drive = Rover(left_motor, right_motor, Optocoupler) # This will need to be updated later when rover class completed
+ #   drive = Rover(left_motor, right_motor, Optocoupler) # This will need to be updated later when rover class completed
     
 
     
-    follower = LineFollow(drive, sensors)
+ #   follower = LineFollow(drive, sensors)
     
-    while True:
-        state = sensors.junction_detection()
-        follower.update()
+ #   while True:
+ #       state = sensors.junction_detection()
+ #       follower.update()
         
-        if state!='CLEAR':
-            if state=='NODE':
-                row = pos.find_row():
-                    if row in bays or row==0:
-                        pos.on_node()
-                    elif row==2:
-                        #turn to row 4
+ #       if state!='CLEAR':
+ #           if state=='NODE':
+ #               row = pos.find_row():
+ #                   if row in bays or row==0:
+ #                       pos.on_node()
+ #                   elif row==2:
+#                        #turn to row 4
                 
-            elif state=='TURN':
-                left_value, right_value = sensors.read_junction()
+  #          elif state=='TURN':
+   #             left_value, right_value = sensors.read_junction()
                 
-                if left_value>right_value:
+    #            if left_value>right_value:
                     #turn left
-                    drive.turnleft()
-                    pos.turn_end(1)
+     #               drive.turnleft()
+      #              pos.turn_end(1)
                     
-                else:
-                    pos.turn_end(0)
-                    drive.turnright()
-                    #turn right 
+       #         else:
+        #            pos.turn_end(0)
+         #           drive.turnright()
+          #          #turn right 
         
-        time.sleep(0.01)
+      #  time.sleep(0.01)
         
-main()
+#main()
 
 
 def SensingInterrupt():
@@ -162,6 +163,7 @@ def SensingInterrupt():
         OuterSensor.irq(handler = OuterSensor_irq)
 
     else:
+        OuterSensor = Pin(OuterSensorGPIOnum, Pin.IN, Pin.PULL_DOWN)
         OuterSensor.irq(handler=None)
 
 def OuterSensor_irq():

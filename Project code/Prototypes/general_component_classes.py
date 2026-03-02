@@ -19,6 +19,16 @@ class Motor:
         self.mDir.value(1)
         self.pwm.duty_u16(int(65535 * speed / 100))
         
+    def set_speed(self, speed):
+        if speed > 0 and speed <= 100:
+            self.mDir.value(0)                     
+            self.pwm.duty_u16(int(65535 * speed / 100))
+        elif speed < 0 and speed >= -100:
+            self.mDir.value(1)                     
+            self.pwm.duty_u16(int(65535 * -speed / 100))
+        else:
+            print("Invalid motor speed input")
+        
 class Actuator:
     def __init__(self, dirPin, PWMPin):
         self.mDir = Pin(dirPin, Pin.OUT)  # set motor direction pin
