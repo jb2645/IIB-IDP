@@ -133,27 +133,25 @@ class Path_LFT:
         if self.state == "LEAVING_START":
             # Follow until first turn
             if event == "TURN":
-                self.turn_left()
+                self.drive.turn_left()
                 self.state = "OUTER_LOOP"
 
         elif self.state == "OUTER_LOOP":
             if event == "TURN":
                 self.turn_count += 1
-                self.turn_right()
+                self.drive.turn_right()
 
                 if self.turn_count == 4:
                     self.state = "RETURNING"
 
         elif self.state == "RETURNING":
-            if event == "TURN":
-                self.turn_left()
+            if event == "NODE" and self.pos.node == 2:
+                self.drive.turn_left()
                 self.state = "STOP"
 
         elif self.state == "STOP":
             self.drive.stop()
 
-        else:
-            self.line_follow()
 
 
 
