@@ -19,7 +19,7 @@ class Motor:
         self.mDir.value(1)
         self.pwm.duty_u16(int(65535 * speed / 100))
         
-    def set_speed(self, speed):
+    def set_speed(self, speed):               #combines previous functions into single set speed function that sets motor into forward or reverse
         if speed > 0 and speed <= 100:
             self.mDir.value(0)                     
             self.pwm.duty_u16(int(65535 * speed / 100))
@@ -29,7 +29,7 @@ class Motor:
         else:
             print("Invalid motor speed input")
         
-class Actuator:
+class Actuator:                                 #defines actuator class for controlling any actuators in the design
     def __init__(self, dirPin, PWMPin):
         self.mDir = Pin(dirPin, Pin.OUT)  # set motor direction pin
         self.pwm = PWM(Pin(PWMPin))  # set motor pwm pin
@@ -40,9 +40,9 @@ class Actuator:
         self.mDir.value(dir)                     # forward = 0 reverse = 1 motor
         self.pwm.duty_u16(int(65535 * speed / 100))  # speed range 0-100 motor
 
-class Optocoupler:
+class Optocoupler:                              #groups optocouple sensor inputs into single class
     def __init__(self, OuterL, OuterR, InnerL, InnerR):
-        self.OuterL = Pin(OuterL, Pin.IN, Pin.PULL_DOWN)
+        self.OuterL = Pin(OuterL, Pin.IN, Pin.PULL_DOWN)     #outer left hand sensor 
         self.OuterR = Pin(OuterR, Pin.IN, Pin.PULL_DOWN)
         self.InnerL = Pin(InnerL, Pin.IN, Pin.PULL_DOWN)
         self.InnerR = Pin(InnerR, Pin.IN, Pin.PULL_DOWN)
@@ -58,7 +58,7 @@ class Optocoupler:
     def read_junction(self):
         return self.OuterL.value(), self.OuterR.value()
     
-    def junction_detection(self):
+    def junction_detection(self):    #determins whether a detected junction is a node or a turning
         
         if (self.OuterL == 1) or (self.OuterR == 1):
             if (self.InnerL ==0) and (self.InnerR==0):
