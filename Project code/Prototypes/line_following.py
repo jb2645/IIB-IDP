@@ -3,41 +3,6 @@ import time
 
 from general_component_classes import *
 from rover_class_creation import * 
-
-#class LineSensors:
-#    def __init__(self,fleft_pin,left_pin,right_pin,fright_pin):
-#        self.fleft = fleft_pin
-#        self.left = left_pin
-#        self.right = right_pin
-#        self.fright = fright_pin
-#        
- ##   
- #   def read_line(self):
- #       return self.left.value(), self.right.value()#
-#
-#    def read_junction(self):
- #       return self.fleft.value(), self.fright.value()
-#        
-    
- #   def junction_detection(self):
- #       fl,fr = self.read_junction()
- #       l,r = self.read_line()
-#        
-#        if (fl==1) or (fr==1):
-#            if (l==0) and (r==0):
-#                return 'TURN'
-#                
-#            else:
-#                return 'NODE'
-#            
-#        else:
-#            self.dir.value(0)
-#        
-#        duty = int(abs(speed)*655)
- #       self.pwm.duty_u16(duty)
- #       
- #   def stop(self):
- #       self.pwm.duty_u16(0)
         
 #class MainDrive:
 #    def __init__(self, left_motor, right_motor):
@@ -54,10 +19,10 @@ from rover_class_creation import *
 
 class LineSensors:
     def __init__(self,fleft_pin,left_pin,right_pin,fright_pin):
-        self.fleft = fleft_pin
-        self.left = left_pin
-        self.right = right_pin
-        self.fright = fright_pin
+        self.fleft = Pin(fleft_pin,Pin.IN)
+        self.left = Pin(left_pin,Pin.IN)
+        self.right = Pin(right_pin,Pin.IN)
+        self.fright = Pin(firght_pin,Pin.IN)
         
     
     def read_line(self):
@@ -66,20 +31,19 @@ class LineSensors:
     def read_junction(self):
         return self.fleft.value(), self.fright.value()
         
-    
-    def junction_detection(self,position):
+    def get_event(self):
         fl,fr = self.read_junction()
         l,r = self.read_line()
         
         if (fl==1) or (fr==1):
             if (l==0) and (r==0):
-                position.update('TURN')
+                return "TURN"
                 
             else:
-                position.update('NODE')
+                return "NODE"
             
         else:
-            position.update('CLEAR')
+            return "CLEAR"
                 
             
         
@@ -90,38 +54,35 @@ class LineFollow:
         self.sensor = sensors
         self.base_speed = base_speed
         self.correction = correction
-        self.last_direction = 0
         
     def adjust(self):
         left, right = self.sensor.read_line()
         
-        l = 0
-        r = 0
-        direction = 0
+        if left == 0 and right == 0:
+            self.drive.drive(self.base_speed, self.base_speed)
+
+        elif left == 1 and right == 0:
+            self.drive.drive(self.base_speed - self.correction,
+                             self.base_speed + self.correction)
+
+        elif left == 0 and right == 1:
+            self.drive.drive(self.base_speed + self.correction,
+                             self.base_speed - self.correction)
         
-        if left>right:
-            l = -1
-            r = 1
-            direction = -1
-        elif left<right:
-            l = 1
-            r = -1
-            direction = 1
-        
-        self.drive.drive(self.base_speed + l * self.correction, self.base_speed + r * self.correction)
-        self.last_direction = 0
-        
+        else:
+            self.drive.drive(self.base_speed, self.base_speed)
 
 
 class Position:
     def __init__(self,grid):
         self.grid = grid #((3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(x,5),(x,5))
-        self.row = grid[0]
+        self.row = 0
         self.heading = 0  #[N,E,S,W]
         self.node = 2
+        self.state = "CLEAR"
         
     def update(self,event):
-        return event
+        self.state = event
         
     def find_row(self):
         if self.heading == 0 or self.heading == 1:
@@ -166,29 +127,28 @@ def main():
     right_motor = Motor(dirPin=6, PWMPin=7)
 
     #sensors = LineSensors(['''pin1,pin2,pin3,pin4'''])
-    sensors = Optocoupler(6, 7, 8, 9)      #check actual order of gpio pins
+    sensors = LineSensors(6, 7, 8, 9)      #check actual order of gpio pins
     
  #   drive = MainDrive(left_motor, right_motor)
-    drive = Rover(left_motor, right_motor, Optocoupler) # This will need to be updated later when rover class completed
+    drive = Rover(left_motor, right_motor, LineSensors) # This will need to be updated later when rover class completed
     
 
     
     follower = LineFollow(drive, sensors)
     
     while True:
-        state = pos.update()
-        sensors.junction_detection(pos)
-        follower.adjust()
+        event = sensors.get_event()
+        pos.update(event)
         
-        if state!='CLEAR':
-            if state=='NODE':
-                if pos.find_row==2:
-                    pos.turn_node('BACK')
-                else:
-                    pos.on_node()
-                
-            elif state=='TURN':
-                left_value, right_value = sensors.read_junction()
+        if pos.state == "CLEAR":
+            follower.adjust()
+            
+        elif pos.state == "NODE":
+            drive.stop()
+            pos.on_node()
+        
+        elif pos.state == "TURN":
+            left_value, right_value = sensors.read_junction()
                 
                 if left_value>right_value:
                     #turn left
@@ -199,7 +159,7 @@ def main():
                     pos.turn_end(0)
                     drive.turnright()
                     #turn right 
-        
+
         time.sleep(0.01)
         
 main()
