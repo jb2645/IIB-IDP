@@ -155,40 +155,6 @@ class Path_LFT:
         else:
             self.line_follow()
 
-    def line_follow(self):
-        left, right = self.sensors.read_line()
-
-        if left == 0 and right == 0:
-            self.drive.drive(40, 40)
-
-        elif left == 1 and right == 0:
-            self.drive.drive(20, 60)
-
-        elif left == 0 and right == 1:
-            self.drive.drive(60, 20)
-
-        else:
-            self.drive.drive(40, 40)
-
-    def turn_left(self):
-        self.drive.stop()
-        time.sleep(0.2)
-
-        self.drive.drive(-30, 30)
-        time.sleep(0.4)
-
-        self.drive.stop()
-        time.sleep(0.2)
-
-    def turn_right(self):
-        self.drive.stop()
-        time.sleep(0.2)
-
-        self.drive.drive(30, -30)
-        time.sleep(0.4)
-
-        self.drive.stop()
-        time.sleep(0.2)
 
 
 def main():
