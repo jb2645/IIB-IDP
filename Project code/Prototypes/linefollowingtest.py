@@ -15,8 +15,8 @@ running = True
 #Defining Rover
 motorL = Motor(dirPin=4, PWMPin=5)#check values later
 motorR = Motor(dirPin=6, PWMPin=7)
-Robot = Rover(motorL, motorR) #update as more components added
 sensors = Optocoupler(6, 7, 8, 9)
+Robot = Rover(motorL, motorR, sensors) #update as more components added
 follower = LineFollow(Robot, sensors)
 
 if __name__ == "__main__":
@@ -31,7 +31,6 @@ if __name__ == "__main__":
         
         state = sensors.junction_detection()
         follower.update()
-        
         if state!='CLEAR':
             #if state=='NODE':
             #    row = pos.find_row():

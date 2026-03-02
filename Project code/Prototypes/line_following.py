@@ -51,7 +51,7 @@ class LineSensors:
 class LineFollow:
     def __init__(self, drive, sensors, base_speed=40, correction=20):
         self.drive = drive
-        self.sensor = sensors
+        self.sensors = sensors
         self.base_speed = base_speed
         self.correction = correction
         
@@ -115,6 +115,7 @@ class Position:
             
     def turn_node(self):
         if self.node == 6:
+            pass
     
 
 class Path_LFT:
@@ -196,18 +197,18 @@ def main():
     pos = Position(grid)
 
     
-    left_motor = Motor(dirPin=4, PWMPin=5)#check values later
-    right_motor = Motor(dirPin=6, PWMPin=7)
-
+ #   left_motor = Motor(dirPin=4, PWMPin=5)#check values later
+ #   right_motor = Motor(dirPin=6, PWMPin=7)
+#
     #sensors = LineSensors(['''pin1,pin2,pin3,pin4'''])
-    sensors = LineSensors(6, 7, 8, 9)      #check actual order of gpio pins
+#    sensors = LineSensors(6, 7, 8, 9)      #check actual order of gpio pins
     
  #   drive = MainDrive(left_motor, right_motor)
-    drive = Rover(left_motor, right_motor, LineSensors) # This will need to be updated later when rover class completed
+ #   drive = Rover(left_motor, right_motor, LineSensors) # This will need to be updated later when rover class completed
     
     path = Path_LFT(drive, sensors)
     
-    follower = LineFollow(drive, sensors)
+ #   follower = LineFollow(drive, sensors)
     
     while True:
         event = sensors.get_event()
@@ -224,10 +225,10 @@ def main():
         elif pos.state == "TURN":
             left_value, right_value = sensors.read_junction()
                 
-                if left_value>right_value:
+    #            if left_value>right_value:
                     #turn left
-                    drive.turnleft()
-                    pos.turn_end(1)
+     #               drive.turnleft()
+      #              pos.turn_end(1)
                     
                 else:
                     pos.turn_end(0)
@@ -236,7 +237,7 @@ def main():
 
         time.sleep(0.01)
         
-main()
+#main()
 
 
 def SensingInterrupt():
@@ -246,6 +247,7 @@ def SensingInterrupt():
         OuterSensor.irq(handler = OuterSensor_irq)
 
     else:
+        OuterSensor = Pin(OuterSensorGPIOnum, Pin.IN, Pin.PULL_DOWN)
         OuterSensor.irq(handler=None)
 
 def OuterSensor_irq():
