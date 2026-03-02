@@ -117,6 +117,79 @@ class Position:
         if self.node == 6:
     
 
+class Path_LFT:
+    def __init__(self, drive, sensors):
+        self.drive = drive
+        self.sensors = sensors
+
+        self.state = "LEAVING_START"
+        self.turn_count = 0
+
+    def update(self):
+
+        event = self.sensors.get_event()
+
+        if self.state == "LEAVING_START":
+            # Follow until first turn
+            if event == "TURN":
+                self.turn_left()
+                self.state = "OUTER_LOOP"
+
+        elif self.state == "OUTER_LOOP":
+            if event == "TURN":
+                self.turn_count += 1
+                self.turn_right()
+
+                if self.turn_count == 4:
+                    self.state = "RETURNING"
+
+        elif self.state == "RETURNING":
+            if event == "TURN":
+                self.turn_left()
+                self.state = "STOP"
+
+        elif self.state == "STOP":
+            self.drive.stop()
+
+        else:
+            self.line_follow()
+
+    def line_follow(self):
+        left, right = self.sensors.read_line()
+
+        if left == 0 and right == 0:
+            self.drive.drive(40, 40)
+
+        elif left == 1 and right == 0:
+            self.drive.drive(20, 60)
+
+        elif left == 0 and right == 1:
+            self.drive.drive(60, 20)
+
+        else:
+            self.drive.drive(40, 40)
+
+    def turn_left(self):
+        self.drive.stop()
+        time.sleep(0.2)
+
+        self.drive.drive(-30, 30)
+        time.sleep(0.4)
+
+        self.drive.stop()
+        time.sleep(0.2)
+
+    def turn_right(self):
+        self.drive.stop()
+        time.sleep(0.2)
+
+        self.drive.drive(30, -30)
+        time.sleep(0.4)
+
+        self.drive.stop()
+        time.sleep(0.2)
+
+
 def main():
     grid = [(3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(9,5),(9,5)]
     bays = [1,2,6,7]
@@ -132,13 +205,14 @@ def main():
  #   drive = MainDrive(left_motor, right_motor)
     drive = Rover(left_motor, right_motor, LineSensors) # This will need to be updated later when rover class completed
     
-
+    path = Path_LFT(drive, sensors)
     
     follower = LineFollow(drive, sensors)
     
     while True:
         event = sensors.get_event()
-        pos.update(event)
+        #pos.update(event) changed to path for line following test
+        path.update()
         
         if pos.state == "CLEAR":
             follower.adjust()
