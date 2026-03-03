@@ -60,7 +60,7 @@ if __name__ == "__main__":
             follower.adjust()
             
         elif pos.state == "JUNCTION":
-            while path.state != "LEAVING_START":
+            if path.state != "LEAVING_START":
                 nodestate = pos.on_node()
             #Detects position and if turn required it will turn
             if path.start_nodes == 67:
