@@ -81,20 +81,22 @@ class Rover:
     def turnleft(self):
         turned = False
         while turned == False:
-            self.left.Foward(50)
-            self.right.reverse(20)   #adjust values later
+            self.left.Foward(60)
+            self.right.reverse(30)   #adjust values later
             sensorvalues = self.Optocoupler.getvalues()
             if sensorvalues == [0, 0, 1, 1]:   #redefine as an interrupt
-                turned = False
+                turned = True
+            
+            
 
     def turnright(self):
         turned = False
         while turned == False:
-            self.right.Foward(50)
-            self.left.reverse(20)   #adjust values later
+            self.right.Foward(60)
+            self.left.reverse(30)   #adjust values later
             sensorvalues = self.Optocoupler.getvalues()
             if sensorvalues == [0, 0, 1, 1]:
-                turned = False
+                turned = True
 
 
         

@@ -68,6 +68,7 @@ if __name__ == "__main__":
                 
             if left_value > right_value:
                 pos.turn_end(1)
+                
             else:
                 pos.turn_end(0)
 

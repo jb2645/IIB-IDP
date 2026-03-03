@@ -110,6 +110,7 @@ class Position:
             
         elif turn == 1: #left
             self.heading = (self.heading-1)%4
+            
         
             
             
