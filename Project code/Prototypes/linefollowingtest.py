@@ -68,18 +68,10 @@ if __name__ == "__main__":
         
             if nodestate == "TURN":
                 left_value, right_value = sensors.read_junction()
-                
-<<<<<<< Updated upstream
-            if left_value > right_value:
-                pos.turn_end(1)
-                
-            else:
-                pos.turn_end(0)
-=======
+
                 if left_value > right_value:
                     pos.turn_end(1)
                 else:
                     pos.turn_end(0)
->>>>>>> Stashed changes
 
         time.sleep(0.01)
