@@ -36,8 +36,8 @@ class Rover:
         self.right.set_speed(right_speed)
 
     def stop(self):
-        self.left.stop()
-        self.right.stop()
+        self.left.off()
+        self.right.off()
 
     def getTestVoltage(self):
         return self.testvoltagein
