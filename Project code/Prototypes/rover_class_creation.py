@@ -78,25 +78,55 @@ class Rover:
     def moveforward(self):
         pass
     
-    def turnleft(self):
+    def turnleft(self):               #code for turning 
         turned = False
+        motorstarted = False
+        slowflag = False
+        
         while turned == False:
-            self.left.Foward(60)
-            self.right.reverse(30)   #adjust values later
-            sensorvalues = self.Optocoupler.getvalues()
-            if sensorvalues == [0, 0, 1, 1]:   #redefine as an interrupt
+            if slowflag == False and motorstarted == False:
+                self.left.Foward(60)
+                self.right.reverse(60)
+                motorstarted = True
+            
+            sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
+            
+            if sensorvalues[0] == 1:                   #slows down turn when outer sensor detects line desired 
+                if slowflag == False:
+                    slowflag = True
+                    self.left.Foward(50)
+                    self.right.reverse(50)
+        
+            if sensorvalues[2] == 1:
                 turned = True
+                time.sleep(0.3)
+         #   if sensorvalues == [0, 0, 1, 1]:   #redefine as an interrupt
+         #       turned = True
             
             
 
     def turnright(self):
         turned = False
+        motorstarted = False
+        slowflag = False
+        
         while turned == False:
-            self.right.Foward(60)
-            self.left.reverse(30)   #adjust values later
-            sensorvalues = self.Optocoupler.getvalues()
-            if sensorvalues == [0, 0, 1, 1]:
+            if slowflag == False and motorstarted == False:
+                self.right.Foward(60)
+                self.left.reverse(60)
+                motorstarted = True
+            
+            sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
+            
+            if sensorvalues[1] == 1:                   #slows down turn when outer sensor detects line desired 
+                if slowflag == False:
+                    slowflag = True
+                    self.right.Foward(50)
+                    self.left.reverse(50)
+        
+            if sensorvalues[3] == 1:
                 turned = True
+                time.sleep(0.3)
 
 
         

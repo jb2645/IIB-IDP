@@ -7,7 +7,7 @@ import time
 from utime import sleep
 
 
-running = True
+running = False
 last_press_time = 0
 DEBOUNCE_MS = 200   # debounce delay in milliseconds
 
@@ -54,21 +54,24 @@ if __name__ == "__main__":
     while running:
 
         event = sensors.junction_detection()
-        path.update()
+        path.update()        
         
         
         if pos.state == "CLEAR":
+            print("Clear")
             follower.adjust()
             
         elif pos.state == "NODE":
             Robot.stop()
+            print("Node")
             pos.on_node()
         
         elif pos.state == "TURN":
+            print("Turn")
             left_value, right_value = sensors.read_junction()
                 
             if left_value > right_value:
-                pos.turn_end(1)
+                pos.`1	(1)
                 
             else:
                 pos.turn_end(0)
