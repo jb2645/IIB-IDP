@@ -61,11 +61,7 @@ class Optocoupler:                              #groups optocouple sensor inputs
     def junction_detection(self):    #determins whether a detected junction is a node or a turning
         
         if (self.OuterL == 1) or (self.OuterR == 1):
-            if (self.InnerL ==0) and (self.InnerR==0):
-                return 'TURN'
-                
-            else:
-                return 'NODE'
+            return 'JUNCTION'
             
         else:
             return 'CLEAR'

@@ -74,9 +74,10 @@ class LineFollow:
 
 
 class Position:
-    def __init__(self,grid):
+    def __init__(self,grid,end_nodes):
         self.grid = grid #((3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(x,5),(x,5))
         self.row = 0
+        self.enode = end_nodes
         self.heading = 0  #[N,E,S,W]
         self.node = 2
         self.state = "CLEAR"
@@ -91,13 +92,24 @@ class Position:
         if self.heading == 2 or self.heading == 3:
             return self.grid[self.row][1]
      
-    def on_node(self, case='NORMAL'):
-        if case=='NORMAL':
-            if self.heading == 0 or self.heading==3: # 0=North 3=West
+    def on_node(self):
+        end = self.enodes[self.row]
+        if self.node not in end:
+            if self.heading == 0 or self.heading==1: # 0=North 1=east
                 self.node+=1
             
-            elif self.heading==1 or self.heading ==2: # 1=East  2=South
+            elif self.heading==3 or self.heading ==2: # 3=west  2=South
                 self.node-=1
+            return "NODE"
+        
+        elif self.node in end:
+            if self.heading == 0 or self.heading==1: # 0=North 1=east
+                self.node+=1
+            
+            elif self.heading==3 or self.heading ==2: # 3=west  2=South
+                self.node-=1
+            return "TURN"
+        
 
             
             
@@ -126,6 +138,7 @@ class Path_LFT:
 
         self.state = "LEAVING_START"
         self.turn_count = 0
+        self.start_nodes = 0
 
     def update(self):
 
@@ -133,9 +146,12 @@ class Path_LFT:
 
         if self.state == "LEAVING_START":
             # Follow until first turn
-            if event == "TURN":
-                self.drive.turnleft()
-                self.state = "OUTER_LOOP"
+            if event == "JUNCTION":
+                self.start_nodes+=1
+                if self.start_nodes == 2:
+                    self.drive.turnleft()
+                    self.state = "OUTER_LOOP"
+                    self.start_nodes = 67
 
         elif self.state == "OUTER_LOOP":
             if event == "TURN":
