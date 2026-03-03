@@ -105,11 +105,11 @@ class Rover:
         VL53 = False
         # Determine which direction of sensor is being activated
         if direction == "F":
-            i2c_bus = I2C(id=0, sda=Pin(10), scl=Pin(11)) # Left hand Sensor attached to GPIO 8, 9
+            i2c_bus = I2C(id=0, sda=Pin(16), scl=Pin(17)) # Left hand Sensor attached to GPIO 8, 9
             VL53 = True
             
         if direction == "R":
-            i2c_bus = I2C(id=0, sda=Pin(16), scl=Pin(17)) # Right hand Sensor attached to GPIO 
+            i2c_bus = I2C(id=0, sda=Pin(18), scl=Pin(19)) # Right hand Sensor attached to GPIO 
             VL53 = True
             
         if VL53:

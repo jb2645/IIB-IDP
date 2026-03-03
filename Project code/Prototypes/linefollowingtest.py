@@ -15,7 +15,7 @@ running = True
 #Defining Rover
 motorL = Motor(dirPin=4, PWMPin=5)#check values later
 motorR = Motor(dirPin=6, PWMPin=7)
-sensors = Optocoupler(6, 7, 8, 9)
+sensors = Optocoupler(12, 21, 14, 20)
 Robot = Rover(motorL, motorR, sensors) #update as more components added
 follower = LineFollow(Robot, sensors)
 
