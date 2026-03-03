@@ -61,19 +61,18 @@ if __name__ == "__main__":
             follower.adjust()
             print("Clear")
             
-        elif pos.state == "NODE":
-            Robot.stop()
-            pos.on_node()
-            print("Node")
-        
-        elif pos.state == "TURN":
-            print("Turn")
-            left_value, right_value = sensors.read_junction()
-                
-            if left_value > right_value:
-                pos.turn_end(1)
-                
-            else:
-                pos.turn_end(0)
+        elif pos.state == "JUNCTION":
+            if path.state != "LEAVING_START":
+                nodestate = pos.on_node()
+            #Detects position and if turn required it will turn
+            
+            if nodestate == "TURN":
+                path.turn = TRUE
+                left_value, right_value = sensors.read_junction()
+
+                if left_value > right_value:
+                    pos.turn_end(1)
+                else:
+                    pos.turn_end(0)
 
         time.sleep(0.01)
