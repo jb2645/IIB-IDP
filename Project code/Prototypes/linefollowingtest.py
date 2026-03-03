@@ -63,10 +63,9 @@ if __name__ == "__main__":
             if path.state != "LEAVING_START":
                 nodestate = pos.on_node()
             #Detects position and if turn required it will turn
-            if path.start_nodes == 67:
-                nodestate="TURN"
-        
+            
             if nodestate == "TURN":
+                path.turn = TRUE
                 left_value, right_value = sensors.read_junction()
 
                 if left_value > right_value:

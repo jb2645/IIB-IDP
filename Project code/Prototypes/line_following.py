@@ -137,6 +137,7 @@ class Path_LFT:
         self.sensors = sensors
 
         self.state = "LEAVING_START"
+        self.turn = False
         self.turn_count = 0
         self.start_nodes = 0
 
@@ -151,18 +152,18 @@ class Path_LFT:
                 if self.start_nodes == 2:
                     self.drive.turnleft()
                     self.state = "OUTER_LOOP"
-                    self.start_nodes = 67
 
         elif self.state == "OUTER_LOOP":
-            if event == "TURN":
+            if self.turn == True:
                 self.turn_count += 1
                 self.drive.turnright()
+                self.turn == False
 
                 if self.turn_count == 4:
                     self.state = "RETURNING"
 
         elif self.state == "RETURNING":
-            if event == "NODE" and self.pos.node == 2:
+            if event == "JUNCTION" and self.pos.node == 2:
                 self.drive.turnleft()
                 self.state = "STOP"
 
