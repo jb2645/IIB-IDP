@@ -1,31 +1,42 @@
-#Main Code
+# Main Code
 from general_component_classes import *
 from line_following import *
 from rover_class_creation import *
 from machine import Pin
+import time
 from utime import sleep
 
-#definitions
 
-#define button press interrupt to stop/start program
-running = False         
+running = False
+last_press_time = 0
+DEBOUNCE_MS = 200   # debounce delay in milliseconds
+
 def button_pressed(pin):
-    global running
-    running = not running
-    ##testing
-    print("Button ")
+    global running, last_press_time
 
-#Defining Button
-button_pin = 22         #to be determined
+    now = time.ticks_ms()
+
+    # Debounce check
+    if time.ticks_diff(now, last_press_time) > DEBOUNCE_MS:
+        if not running:      # Only allow start once
+            running = True
+            print("STARTED")
+
+    last_press_time = now
+
+
+# Defining Button
+button_pin = 22
 button = Pin(button_pin, Pin.IN, Pin.PULL_DOWN)
 button.irq(trigger=Pin.IRQ_RISING, handler=button_pressed)
 
-#Defining Rover
-motorL = Motor(dirPin=4, PWMPin=5)#check values later
+
+motorL = Motor(dirPin=4, PWMPin=5)
 motorR = Motor(dirPin=7, PWMPin=6)
 sensors = Optocoupler(12, 21, 14, 20)
-Robot = Rover(motorL, motorR, sensors) #update as more components added
+Robot = Rover(motorL, motorR, sensors)
 follower = LineFollow(Robot, sensors)
+
 
 if __name__ == "__main__":
     grid = [(3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(9,5),(9,5)]
@@ -34,12 +45,15 @@ if __name__ == "__main__":
     
     path = Path_LFT(Robot, sensors)
     
- #   follower = LineFollow(drive, sensors)
-    while running == False:
+    # Wait until button pressed
+    while not running:
         Robot.stop()
-    while running == True:
+        time.sleep(0.01)
+
+    # Main loop
+    while running:
+
         event = sensors.junction_detection()
-        #pos.update(event) changed to path for line following test
         path.update()
         
         if pos.state == "CLEAR":
@@ -52,17 +66,9 @@ if __name__ == "__main__":
         elif pos.state == "TURN":
             left_value, right_value = sensors.read_junction()
                 
-            if left_value>right_value:
-                    #turn left
-     #               drive.turnleft()
-                    pos.turn_end(1)
-                    
+            if left_value > right_value:
+                pos.turn_end(1)
             else:
-                    pos.turn_end(0)
-                    #drive.turnright()
-                    #turn right 
+                pos.turn_end(0)
 
         time.sleep(0.01)
-        
-
-        
