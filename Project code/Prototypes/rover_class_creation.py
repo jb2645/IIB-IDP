@@ -85,8 +85,8 @@ class Rover:
         
         while turned == False:
             if slowflag == False and motorstarted == False:
-                self.left.Foward(60)
-                self.right.reverse(60)
+                self.left.Forward(60)
+                self.right.Reverse(60)
                 motorstarted = True
             
             sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
@@ -94,8 +94,8 @@ class Rover:
             if sensorvalues[0] == 1:                   #slows down turn when outer sensor detects line desired 
                 if slowflag == False:
                     slowflag = True
-                    self.left.Foward(50)
-                    self.right.reverse(50)
+                    self.left.Forward(50)
+                    self.right.Reverse(50)
         
             if sensorvalues[2] == 1:
                 turned = True
@@ -112,8 +112,8 @@ class Rover:
         
         while turned == False:
             if slowflag == False and motorstarted == False:
-                self.right.Foward(60)
-                self.left.reverse(60)
+                self.right.Forward(60)
+                self.left.Reverse(60)
                 motorstarted = True
             
             sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
@@ -121,8 +121,8 @@ class Rover:
             if sensorvalues[1] == 1:                   #slows down turn when outer sensor detects line desired 
                 if slowflag == False:
                     slowflag = True
-                    self.right.Foward(50)
-                    self.left.reverse(50)
+                    self.right.Forward(50)
+                    self.left.Reverse(50)
         
             if sensorvalues[3] == 1:
                 turned = True

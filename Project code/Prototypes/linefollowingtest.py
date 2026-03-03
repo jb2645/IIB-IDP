@@ -40,8 +40,8 @@ follower = LineFollow(Robot, sensors)
 
 if __name__ == "__main__":
     grid = [(3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(9,5),(9,5)]
-    end_nodes = [(4,0),(8,0),(2,0),(8,0),(1,0),(2,0),(7,0),(7,0)]
-    pos = Position(grid,end_nodes)
+    bays = [1,2,6,7]
+    pos = Position(grid)
     
     path = Path_LFT(Robot, sensors)
     
@@ -59,20 +59,21 @@ if __name__ == "__main__":
         
         if pos.state == "CLEAR":
             follower.adjust()
+            print("Clear")
             
-        elif pos.state == "JUNCTION":
-            while path.state != "LEAVING_START":
-                nodestate = pos.on_node()
-            #Detects position and if turn required it will turn
-            if path.start_nodes == 67:
-                nodestate="TURN"
+        elif pos.state == "NODE":
+            Robot.stop()
+            pos.on_node()
+            print("Node")
         
-            if nodestate == "TURN":
-                left_value, right_value = sensors.read_junction()
-
-                if left_value > right_value:
-                    pos.turn_end(1)
-                else:
-                    pos.turn_end(0)
+        elif pos.state == "TURN":
+            print("Turn")
+            left_value, right_value = sensors.read_junction()
+                
+            if left_value > right_value:
+                pos.turn_end(1)
+                
+            else:
+                pos.turn_end(0)
 
         time.sleep(0.01)

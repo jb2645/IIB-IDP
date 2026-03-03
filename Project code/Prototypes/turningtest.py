@@ -56,24 +56,25 @@ if __name__ == "__main__":
         event = sensors.junction_detection()
         path.update()        
         
-        
-        if pos.state == "CLEAR":
-            print("Clear")
-            follower.adjust()
+        pos.turn_end(1)
+        follower.adjust()
+        #if pos.state == "CLEAR":
+       #     print("Clear")
+        #    follower.adjust()
             
-        elif pos.state == "NODE":
-            Robot.stop()
-            print("Node")
-            pos.on_node()
+        #elif pos.state == "NODE":
+        #    Robot.stop()
+         #   print("Node")
+        #    pos.on_node()
         
-        elif pos.state == "TURN":
-            print("Turn")
-            left_value, right_value = sensors.read_junction()
+       # elif pos.state == "TURN":
+        #    print("Turn")
+         #   left_value, right_value = sensors.read_junction()
                 
-            if left_value > right_value:
-                pos.`1	(1)
+          #  if left_value > right_value:
+           #     pos.turn_end(1)
                 
-            else:
-                pos.turn_end(0)
+       #     else:
+        #        pos.turn_end(0)
 
         time.sleep(0.01)
