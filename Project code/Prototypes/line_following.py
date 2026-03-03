@@ -49,7 +49,7 @@ class LineSensors:
         
 
 class LineFollow:
-    def __init__(self, drive, sensors, base_speed=80, correction=20):
+    def __init__(self, drive, sensors, base_speed=60, correction=20):
         self.drive = drive
         self.sensors = sensors
         self.base_speed = base_speed
