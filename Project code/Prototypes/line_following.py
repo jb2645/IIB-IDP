@@ -155,7 +155,7 @@ class Path_LFT:
 
 
 
-def main():
+'''def main():
     grid = [(3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(9,5),(9,5)]
     bays = [1,2,6,7]
     pos = Position(grid)
@@ -203,7 +203,7 @@ def main():
         
 #main()
 
-
+'''
 def SensingInterrupt():
     if drive.GetRoverState() == "Sensing":
         OuterSensorGPIOnum = 9
