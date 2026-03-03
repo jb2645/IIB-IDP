@@ -24,34 +24,35 @@ if __name__ == "__main__":
     bays = [1,2,6,7]
     pos = Position(grid)
     
-    while running == False:
-        pass
-
-    while running == True:
+    path = Path_LFT(drive, sensors)
+    
+ #   follower = LineFollow(drive, sensors)
+    
+    while True:
+        event = sensors.get_event()
+        #pos.update(event) changed to path for line following test
+        path.update()
         
-        state = sensors.junction_detection()
-        follower.update()
-        if state!='CLEAR':
-            #if state=='NODE':
-            #    row = pos.find_row():
-            #    if row in bays or row==0:
-            #        pos.on_node()
-            #    elif row==2:
-            #        #turn to row 4
+        if pos.state == "CLEAR":
+            follower.adjust()
+            
+        elif pos.state == "NODE":
+            drive.stop()
+            pos.on_node()
+        
+        elif pos.state == "TURN":
+            left_value, right_value = sensors.read_junction()
                 
-            if state=='TURN':
-                left_value, right_value = sensors.read_junction()
-                
-                if left_value>right_value:
+               if left_value>right_value:
                     #turn left
-                    Robot.turnleft()
+     #               drive.turnleft()
                     pos.turn_end(1)
                     
                 else:
                     pos.turn_end(0)
+                    #drive.turnright()
                     #turn right 
-                    Robot.turnright()
-        
+
         time.sleep(0.01)
         
 
