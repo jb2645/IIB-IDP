@@ -22,7 +22,7 @@ class LineSensors:
         self.fleft = Pin(fleft_pin,Pin.IN)
         self.left = Pin(left_pin,Pin.IN)
         self.right = Pin(right_pin,Pin.IN)
-        self.fright = Pin(firght_pin,Pin.IN)
+        self.fright = Pin(fright_pin,Pin.IN)
         
     
     def read_line(self):
@@ -93,7 +93,7 @@ class Position:
             return self.grid[self.row][1]
      
     def on_node(self):
-        end = self.enodes[self.row]
+        end = self.enode[self.row]
         if self.node not in end:
             if self.heading == 0 or self.heading==1: # 0=North 1=east
                 self.node+=1
@@ -157,7 +157,7 @@ class Path_LFT:
             if self.turn == True:
                 self.turn_count += 1
                 self.drive.turnright()
-                self.turn == False
+                self.turn = False
 
                 if self.turn_count == 4:
                     self.state = "RETURNING"

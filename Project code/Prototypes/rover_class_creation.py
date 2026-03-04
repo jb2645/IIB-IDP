@@ -47,7 +47,7 @@ class Rover:
         adc = ADC(26)    # sets GPIO 26 as analogue port in
         valuein = adc.read_u16()      
         testvoltagein = valuein * 3.3 / 65535           #converts analogue signal to voltage
-        self.testvoltagein = testvoltagefetch()
+        self.testvoltagein = testvoltagein
         if self.testvoltagein > 0.02 and self.testvoltagein < 0.04:
             return "Blue"
         elif self.testvoltagein > 0.2 and self.testvoltagein < 0.4:
@@ -160,34 +160,7 @@ class Rover:
             
             return distance
             
-        else:
-            #put in code for Ultrasonic sensor here
-                        
-                        #define  MAX_RANG      (520)//the max measurement vaule of the module is 520cm(a little bit longer than  effective max range)
-            #define  ADC_SOLUTION      (1023.0)//ADC accuracy of Arduino UNO is 10bit
-
-            import sys
-            import time
-
-            import URM09
-
-            #sys.path.append("../..")
-            ''' Create a URM09 object to communicate with I2C. '''
-            URM09 = URM09.DFRobot_URM09()
-            ''' Set the i2c device number '''
-            URM09.begin(0x11)     #find out i2c bus address 
-            
-            URM09.SetModeRange(URM09._MEASURE_MODE_PASSIVE, URM09._MEASURE_RANG_500)
-            while(1):
-                ''' Write command register and send ranging command '''
-                URM09.SetMeasurement()
-                time.sleep(0.1)
-                ''' Read distance register '''
-                distance = URM09.i2cReadDistance()
-                
-                return distance
-                ''' Read temperature register '''
-                temp = URM09.i2cReadTemperature()
+       
 
     
         
