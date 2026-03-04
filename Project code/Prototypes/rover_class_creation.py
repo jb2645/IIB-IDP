@@ -49,12 +49,28 @@ class Rover:
         testvoltagein = valuein * 3.3 / 65535           #converts analogue signal to voltage
         self.testvoltagein = testvoltagefetch()
         if self.testvoltagein > 0.02 and self.testvoltagein < 0.04:
+            blueled = Pin(11, Pin.OUT)
+            blueled.value(1)
+            time.sleep(0.3)
+            blueled.value(0)
             return "Blue"
         elif self.testvoltagein > 0.2 and self.testvoltagein < 0.4:
+            greenled = Pin(10, Pin.OUT)
+            greenled.value(1)
+            time.sleep(0.3)
+            greenled.value(0)
             return "Green"
         elif self.testvoltagein > 1.4 and self.testvoltagein < 1.6:
+            redled = Pin(9, Pin.OUT)
+            redled.value(1)
+            time.sleep(0.3)
+            redled.value(0)
             return "Red"
         elif self.testvoltagein > 2.65 and self.testvoltagein < 2.95:
+            yellowled = Pin(8, Pin.OUT)
+            yellowled.value(1)
+            time.sleep(0.3)
+            yellowled.value(0)
             return "Yellow"
         else:
             print("No Object")
@@ -99,7 +115,7 @@ class Rover:
         
             if sensorvalues[2] == 1:
                 turned = True
-                time.sleep(0.3)
+                time.sleep(0.4)
          #   if sensorvalues == [0, 0, 1, 1]:   #redefine as an interrupt
          #       turned = True
             
@@ -109,11 +125,12 @@ class Rover:
         turned = False
         motorstarted = False
         slowflag = False
+        nearlyturned = False
         
         while turned == False:
             if slowflag == False and motorstarted == False:
-                self.right.Forward(60)
-                self.left.Reverse(60)
+                self.right.Forward(70)
+                self.left.Reverse(70)
                 motorstarted = True
             
             sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
@@ -121,12 +138,18 @@ class Rover:
             if sensorvalues[1] == 1:                   #slows down turn when outer sensor detects line desired 
                 if slowflag == False:
                     slowflag = True
-                    self.right.Forward(50)
-                    self.left.Reverse(50)
+                    self.right.Forward(55)
+                    self.left.Reverse(55)
         
-            if sensorvalues[3] == 1:
+            if sensorvalues[3] == 1:                 #to discard any anomalous readins in LH sensor
+                nearlyturned = True
+                
+            if sensorvalues[2] == 1 and sensorvalues[1] == 0 and nearlyturned == True:
                 turned = True
-                time.sleep(0.3)
+                
+            time.sleep(0.05)
+                
+            
 
 
         
