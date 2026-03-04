@@ -186,7 +186,8 @@ class Path_LFT:
                 if self.pos.node == 2:
                     self.drive.turnleft()
                     self.state = "STOP"
-            else self.follower.adjust()
+            else:
+                self.follower.adjust()
 
         elif self.state == "STOP":
             self.drive.stop()

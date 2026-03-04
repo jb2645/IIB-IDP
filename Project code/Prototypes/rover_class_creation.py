@@ -38,6 +38,10 @@ class Rover:
     def drive(self, left_speed, right_speed):
         self.left.set_speed(left_speed)
         self.right.set_speed(right_speed)
+        print("Testuing")
+    
+    def For(self):
+        self.left.Forward()
 
     def stop(self):
         self.left.off()

@@ -19,13 +19,15 @@ class Motor:
         self.mDir.value(1)
         self.pwm.duty_u16(int(65535 * speed / 100))
         
-    def set_speed(self, speed):               #combines previous functions into single set speed function that sets motor into forward or reverse
+    def set_speed(self, speed=100):               #combines previous functions into single set speed function that sets motor into forward or reverse
         if speed > 0 and speed <= 100:
             self.mDir.value(0)                     
             self.pwm.duty_u16(int(65535 * speed / 100))
+            print("Test1")
         elif speed < 0 and speed >= -100:
             self.mDir.value(1)                     
             self.pwm.duty_u16(int(65535 * -speed / 100))
+            print("Test2")
         else:
             print("Invalid motor speed input")
         
@@ -39,6 +41,7 @@ class Actuator:                                 #defines actuator class for cont
     def set(self, dir, speed):
         self.mDir.value(dir)                     # forward = 0 reverse = 1 motor
         self.pwm.duty_u16(int(65535 * speed / 100))  # speed range 0-100 motor
+    
 
 class Optocoupler:                              #groups optocouple sensor inputs into single class
     def __init__(self, OuterL, OuterR, InnerL, InnerR):
