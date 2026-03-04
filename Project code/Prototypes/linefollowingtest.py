@@ -38,6 +38,7 @@ sensors = Optocoupler(12, 21, 14, 20)
 Robot = Rover(motorL, motorR, sensors)
 follower = LineFollow(Robot, sensors)
 
+running = True
 
 if __name__ == "__main__":
     grid = [(3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(9,5),(9,5)]

@@ -53,6 +53,7 @@ class Optocoupler:                              #groups optocouple sensor inputs
         
     def getvalues(self):
         values = [self.OuterL.value(), self.OuterR.value(), self.InnerL.value(), self.InnerR.value()]
+        print(values)
         return values
     
     def read_line(self):
