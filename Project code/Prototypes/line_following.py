@@ -127,10 +127,10 @@ class Position:
         new_end_row = self.enode[self.row]
             
         if self.heading == 0 or self.heading == 1:
-            self.node = new_end_row(1)
+            self.node = new_end_row[1]
             
         elif self.heading == 2 or self.heading == 3:
-            self.node = new_end_row(0)
+            self.node = new_end_row[0]
             
             
     def turn_node(self):
@@ -190,7 +190,7 @@ class Path_LFT:
         elif self.state == "STOP":
             self.drive.stop()
 
-
+'''
 def SensingInterrupt():
     if drive.GetRoverState() == "Sensing":
         OuterSensorGPIOnum = 9
@@ -203,6 +203,6 @@ def SensingInterrupt():
 
 def OuterSensor_irq():
     CheckDistance = True #may need callback function if sensors are not aligned
-
+'''
     
 
