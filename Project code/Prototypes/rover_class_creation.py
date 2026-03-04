@@ -38,7 +38,7 @@ class Rover:
     def drive(self, left_speed, right_speed):
         self.left.set_speed(left_speed)
         self.right.set_speed(right_speed)
-        print("Testuing")
+
     
     def For(self):
         self.left.Forward()
@@ -114,11 +114,13 @@ class Rover:
                     self.right.Reverse(55)
         
             if sensorvalues[2] == 1:
+                sleep(0.1)
                 nearlyturned = True
                 
             if sensorvalues[3] == 1 and sensorvalues[0] == 0 and nearlyturned == True:    #outer left past line, inner right has hit line so it is turned, inner left having previously gone over line
+                sleep(0.2)
                 turned = True
-            sleep(0.05)
+            #sleep(0.05)
             
             
 
@@ -142,13 +144,15 @@ class Rover:
                     self.right.Forward(55)
                     self.left.Reverse(55)
         
-            if sensorvalues[3] == 1:                 #to discard any anomalous readins in LH sensor
+            if sensorvalues[3] == 1:#to discard any anomalous readins in LH sensor
+                sleep(0.1)
                 nearlyturned = True
                 
             if sensorvalues[2] == 1 and sensorvalues[1] == 0 and nearlyturned == True:
+                sleep(0.2)
                 turned = True
                 
-            sleep(0.05)
+            #sleep(0.05)
                 
             
 
@@ -184,6 +188,11 @@ class Rover:
             
             return distance
             
+            
+    def drive_onto_junction(self, duration=1.5):
+        self.drive(40, 40)
+        sleep(duration)
+        self.stop()
        
 
     

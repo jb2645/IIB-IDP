@@ -1,5 +1,5 @@
 from machine import Pin, PWM
-import time
+from utime import sleep
 
 from general_component_classes import *
 from rover_class_creation import * 
@@ -49,7 +49,7 @@ class LineSensors:
         
 
 class LineFollow:
-    def __init__(self, drive, sensors, base_speed=60, correction=20):
+    def __init__(self, drive, sensors, base_speed=45, correction=15):
         self.drive = drive
         self.sensors = sensors
         self.base_speed = base_speed
@@ -61,11 +61,11 @@ class LineFollow:
         if left == 0 and right == 0:
             self.drive.drive(self.base_speed, self.base_speed)
 
-        elif left == 1 and right == 0:
+        elif left == 0 and right == 1:
             self.drive.drive(self.base_speed - self.correction,
                              self.base_speed + self.correction)
 
-        elif left == 0 and right == 1:
+        elif left == 1 and right == 0:
             self.drive.drive(self.base_speed + self.correction,
                              self.base_speed - self.correction)
         
@@ -74,69 +74,66 @@ class LineFollow:
 
 
 class Position:
-    def __init__(self,grid,end_nodes):
-        self.grid = grid #((3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(x,5),(x,5))
+    def __init__(self, grid, end_nodes):
+        self.grid = grid
         self.row = 0
         self.enode = end_nodes
-        self.heading = 0  #[N,E,S,W]
-        self.node = 2
+        self.heading = 0  # [N, E, S, W] = [0, 1, 2, 3]
+        self.node = 2     # Starting node
         self.state = "CLEAR"
         
-    def update(self,event):
+    def update(self, event):
         self.state = event
         
     def find_row(self):
         if self.heading == 0 or self.heading == 1:
             return self.grid[self.row][0]
-        
-        if self.heading == 2 or self.heading == 3:
+        else:
             return self.grid[self.row][1]
      
     def on_node(self):
+        # FIRST: Increment node (we've arrived at a new junction)
+        if self.heading == 0 or self.heading == 1:  # N or E → counting up
+            self.node += 1
+        else:  # S or W → counting down
+            self.node -= 1
+        
+        #print(f"Arrived at node {self.node}, row {self.row}")
+        
+        # THEN: Check if it's an end node
         end = self.enode[self.row]
-        if self.node not in end:
-            if self.heading == 0 or self.heading==1: # 0=North 1=east
-                self.node+=1
-            
-            elif self.heading==3 or self.heading ==2: # 3=west  2=South
-                self.node-=1
-            return "NODE"
         
-        elif self.node in end:
-            if self.heading == 0 or self.heading==1: # 0=North 1=east
-                self.node+=1
-            
-            elif self.heading==3 or self.heading ==2: # 3=west  2=South
-                self.node-=1
+        if self.node in end:
+            #print(f"END NODE - TURN!")
             return "TURN"
-        
-
+        else:
+            return "NODE"
             
-            
-    def turn_end(self,turn):
-        old_row = self.row
+    def turn_end(self, turn):
         self.row = self.find_row()
         
-        if turn == 0: #right
-            self.heading = (self.heading+1)%4
-            
-            
-        elif turn == 1: #left
-            self.heading = (self.heading-1)%4
+        if turn == 0:  # right
+            self.heading = (self.heading + 1) % 4
+        elif turn == 1:  # left
+            self.heading = (self.heading - 1) % 4
         
+        # Reset node to starting position for new row
         new_end_row = self.enode[self.row]
             
-        if self.heading == 0 or self.heading == 1:
-            self.node = new_end_row[1]
+        if self.heading == 0 or self.heading == 1:  # N or E
+            self.node = new_end_row[1]  # Start from low end
+        else:  # S or W
+            self.node = new_end_row[0]  # Start from high end
             
-        elif self.heading == 2 or self.heading == 3:
-            self.node = new_end_row[0]
+        #print(f"After turn: row={self.row}, heading={self.heading}, node={self.node}")
+        
+        
+        
+        
+                
+
             
-            
-    def turn_node(self):
-        if self.node == 6:
-            pass
-    
+
 
 class Path_LFT:
     def __init__(self, drive, sensors,pos, follower):
@@ -150,23 +147,25 @@ class Path_LFT:
         self.junction = False
 
     def update(self):
-        print(self.state)
-
+        #print(self.state)
+        old_state = self.state
+        if self.state!=old_state:
+            print(self.state)
         event = self.sensors.junction_detection()
-        if event == "JUNCTION":
-            self.junction = True
-        elif event == "CLEAR":
-            self.junction = False
         
 
         if self.state == "LEAVING_START":
+            #print(self.junction)
             # Follow until first turn
+            #print(event)
             if event == "JUNCTION" and self.junction==False:
                 self.start_nodes+=1
-                
+                #print(self.start_nodes)
                 if self.start_nodes == 2:
+                    self.drive.drive_onto_junction()
                     self.drive.turnleft()
-                    self.pos.turn_end(1)
+                    #self.pos.turn_end(1)
+                    self.pos.heading = 3
                     self.state = "OUTER_LOOP"
             else:
                 self.follower.adjust()
@@ -174,15 +173,19 @@ class Path_LFT:
         elif self.state == "OUTER_LOOP":
             if event == "JUNCTION" and self.junction == False:
                 nodestate = self.pos.on_node()
+                print(nodestate)
                 if nodestate == "TURN":
                     
                     self.turn_count += 1
+                    self.drive.drive_onto_junction()
                     self.drive.turnright()
                     self.pos.turn_end(0)
                 
 
                     if self.turn_count == 4:
                         self.state = "RETURNING"
+                elif nodestate == "NODE":
+                    self.drive.drive(45,45)
             else:
                 self.follower.adjust()
 
@@ -190,13 +193,22 @@ class Path_LFT:
             if event == "JUNCTION" and self.junction == False:
                 self.pos.on_node()
                 if self.pos.node == 2:
+                    self.drive.drive_onto_junction()
                     self.drive.turnleft()
                     self.state = "STOP"
             else:
                 self.follower.adjust()
 
         elif self.state == "STOP":
+            self.drive.drive(45,45)
+            sleep(0.5)
             self.drive.stop()
+            
+        if event == "JUNCTION":
+            self.junction = True
+        elif event == "CLEAR":
+            self.junction = False
+        
 
 '''
 def SensingInterrupt():
