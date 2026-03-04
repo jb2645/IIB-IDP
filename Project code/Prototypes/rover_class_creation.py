@@ -114,7 +114,7 @@ class Rover:
                 
             if sensorvalues[3] == 1 and sensorvalues[0] == 0 and nearlyturned == True:    #outer left past line, inner right has hit line so it is turned, inner left having previously gone over line
                 turned = True
-            time.sleep(0.05)
+            sleep(0.05)
             
             
 
@@ -144,7 +144,7 @@ class Rover:
             if sensorvalues[2] == 1 and sensorvalues[1] == 0 and nearlyturned == True:
                 turned = True
                 
-            time.sleep(0.05)
+            sleep(0.05)
                 
             
 
