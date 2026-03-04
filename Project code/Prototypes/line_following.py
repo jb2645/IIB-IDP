@@ -151,7 +151,6 @@ class Path_LFT:
     def update(self):
 
         event = self.sensors.junction_detection()
-        print(self.state)
 
         if self.state == "LEAVING_START":
             # Follow until first turn
@@ -162,7 +161,6 @@ class Path_LFT:
                     self.pos.turn_end(1)
                     self.state = "OUTER_LOOP"
             else:
-                print("ADJUSTING")
                 self.follower.adjust()
 
         elif self.state == "OUTER_LOOP":
@@ -186,7 +184,8 @@ class Path_LFT:
                 if self.pos.node == 2:
                     self.drive.turnleft()
                     self.state = "STOP"
-            else self.follower.adjust()
+            else:
+                self.follower.adjust()
 
         elif self.state == "STOP":
             self.drive.stop()
