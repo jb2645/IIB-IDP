@@ -16,6 +16,10 @@ class Rover:
         self.right = motorR
         self.testvoltagein = 0
         self.Optocoupler = Optocoupler
+        self.blueled = Pin(11, Pin.OUT)
+        self.greenled = Pin(10, Pin.OUT)
+        self.redled = Pin(9, Pin.OUT)
+        self.yellowled = Pin(8, Pin.OUT)
         
         #define all other sensors when decided
         
@@ -49,28 +53,16 @@ class Rover:
         testvoltagein = valuein * 3.3 / 65535           #converts analogue signal to voltage
         self.testvoltagein = testvoltagein
         if self.testvoltagein > 0.02 and self.testvoltagein < 0.04:
-            blueled = Pin(11, Pin.OUT)
-            blueled.value(1)
-            time.sleep(0.3)
-            blueled.value(0)
+            self.blueled.value(1)
             return "Blue"
         elif self.testvoltagein > 0.2 and self.testvoltagein < 0.4:
-            greenled = Pin(10, Pin.OUT)
-            greenled.value(1)
-            time.sleep(0.3)
-            greenled.value(0)
+            self.greenled.value(1)
             return "Green"
         elif self.testvoltagein > 1.4 and self.testvoltagein < 1.6:
-            redled = Pin(9, Pin.OUT)
-            redled.value(1)
-            time.sleep(0.3)
-            redled.value(0)
+            self.redled.value(1)
             return "Red"
         elif self.testvoltagein > 2.65 and self.testvoltagein < 2.95:
-            yellowled = Pin(8, Pin.OUT)
-            yellowled.value(1)
-            time.sleep(0.3)
-            yellowled.value(0)
+            self.yellowled.value(1)
             return "Yellow"
         else:
             print("No Object")
@@ -89,6 +81,12 @@ class Rover:
         
         
     def putdown(self):
+        self.blueled.value(0)       #switch off all LEDs
+        self.greenled.value(0)
+        self.redled.value(0)
+        self.yellowled.value(0)
+        
+        
         pass
     
     def turnleft(self):               #code for turning 
