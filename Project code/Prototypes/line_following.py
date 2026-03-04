@@ -16,7 +16,7 @@ from rover_class_creation import *
  #   def stop(self):
   #      self.left.stop()
    #     self.right.stop()
-
+'''
 class LineSensors:
     def __init__(self,fleft_pin,left_pin,right_pin,fright_pin):
         self.fleft = Pin(fleft_pin,Pin.IN)
@@ -44,7 +44,7 @@ class LineSensors:
             
         else:
             return "CLEAR"
-                
+'''                
             
         
 
@@ -147,15 +147,23 @@ class Path_LFT:
         self.state = "LEAVING_START"
         self.turn_count = 0
         self.start_nodes = 0
+        self.junction = False
 
     def update(self):
+        print(self.state)
 
         event = self.sensors.junction_detection()
+        if event == "JUNCTION":
+            self.junction = True
+        elif event == "CLEAR":
+            self.junction = False
+        
 
         if self.state == "LEAVING_START":
             # Follow until first turn
-            if event == "JUNCTION":
+            if event == "JUNCTION" and self.junction==False:
                 self.start_nodes+=1
+                
                 if self.start_nodes == 2:
                     self.drive.turnleft()
                     self.pos.turn_end(1)
@@ -164,7 +172,7 @@ class Path_LFT:
                 self.follower.adjust()
 
         elif self.state == "OUTER_LOOP":
-            if event == "JUNCTION":
+            if event == "JUNCTION" and self.junction == False:
                 nodestate = self.pos.on_node()
                 if nodestate == "TURN":
                     
@@ -179,7 +187,7 @@ class Path_LFT:
                 self.follower.adjust()
 
         elif self.state == "RETURNING":
-            if event == "JUNCTION":
+            if event == "JUNCTION" and self.junction == False:
                 self.pos.on_node()
                 if self.pos.node == 2:
                     self.drive.turnleft()

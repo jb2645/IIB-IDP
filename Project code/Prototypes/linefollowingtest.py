@@ -7,23 +7,21 @@ import time
 from utime import sleep
 
 
-running = False
+running = False  # ← Start as False
 last_press_time = 0
-DEBOUNCE_MS = 200   # debounce delay in milliseconds
+DEBOUNCE_MS = 200
 
-def button_pressed():
+def button_pressed(pin):
     global running, last_press_time
 
     currenttime = time.ticks_ms()
 
-    # Debounce check
-    if time.ticks_diff(now, last_press_time) > DEBOUNCE_MS:
-        if not running:      # Only allow start once
-            running = True
-            print("STARTED")
-            
+    if time.ticks_diff(currenttime, last_press_time) > DEBOUNCE_MS:
+        running = not running  # ← Toggle
+        
         if running:
-            running = False
+            print("STARTED")
+        else:
             print("STOPPED")
 
     last_press_time = currenttime
@@ -32,8 +30,7 @@ def button_pressed():
 # Defining Button
 button_pin = 22
 button = Pin(button_pin, Pin.IN, Pin.PULL_DOWN)
-button.irq(trigger=Pin.IRQ_RISING, handler=button_pressed)
-
+button.irq(trigger=Pin.IRQ_RISING, handler=button_pressed) 
 
 motorL = Motor(dirPin=4, PWMPin=5)
 motorR = Motor(dirPin=7, PWMPin=6)
@@ -48,14 +45,16 @@ if __name__ == "__main__":
     bays = [1,2,6,7]
     pos = Position(grid, end_nodes)
     
-    path = Path_LFT(Robot, sensors, pos, follower)
+    path = Path_LFT(Robot, sensors, pos, follower )
     
     # Wait until button pressed
     while not running:
         Robot.stop()
-        time.sleep(0.01)
+        sleep(0.01)
 
     # Main loop
     while running:
         path.update()
-        time.sleep(0.01)
+        sleep(0.01)
+        
+    Robot.stop()
