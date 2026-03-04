@@ -114,6 +114,7 @@ class Position:
             
             
     def turn_end(self,turn):
+        old_row = self.row
         self.row = self.find_row()
         
         if turn == 0: #right
@@ -122,8 +123,14 @@ class Position:
             
         elif turn == 1: #left
             self.heading = (self.heading-1)%4
-            
         
+        new_end_row = self.enode[self.row]
+            
+        if self.heading == 0 or self.heading == 1:
+            self.node = new_end_row(1)
+            
+        elif self.heading == 2 or self.heading == 3:
+            self.node = new_end_row(0)
             
             
     def turn_node(self):
@@ -132,12 +139,12 @@ class Position:
     
 
 class Path_LFT:
-    def __init__(self, drive, sensors):
+    def __init__(self, drive, sensors,pos, follower):
         self.drive = drive
         self.sensors = sensors
-
+        self.pos = pos
+        self.follower = follower
         self.state = "LEAVING_START"
-        self.turn = False
         self.turn_count = 0
         self.start_nodes = 0
 
@@ -151,21 +158,33 @@ class Path_LFT:
                 self.start_nodes+=1
                 if self.start_nodes == 2:
                     self.drive.turnleft()
+                    self.pos.turn_end(1)
                     self.state = "OUTER_LOOP"
+            else:
+                self.follower.adjust()
 
         elif self.state == "OUTER_LOOP":
-            if self.turn == True:
-                self.turn_count += 1
-                self.drive.turnright()
-                self.turn = False
+            if event == "JUNCTION":
+                nodestate = self.pos.on_node()
+                if nodestate == "TURN":
+                    
+                    self.turn_count += 1
+                    self.drive.turnright()
+                    self.pos.turn_end(0)
+                
 
-                if self.turn_count == 4:
-                    self.state = "RETURNING"
+                    if self.turn_count == 4:
+                        self.state = "RETURNING"
+            else:
+                self.follower.adjust()
 
         elif self.state == "RETURNING":
-            if event == "JUNCTION" and self.pos.node == 2:
-                self.drive.turnleft()
-                self.state = "STOP"
+            if event == "JUNCTION":
+                self.pos.on_node()
+                if self.pos.node == 2:
+                    self.drive.turnleft()
+                    self.state = "STOP"
+            else self.follower.adjust()
 
         elif self.state == "STOP":
             self.drive.stop()
