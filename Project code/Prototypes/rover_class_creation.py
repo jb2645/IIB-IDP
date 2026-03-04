@@ -90,19 +90,17 @@ class Rover:
         
     def putdown(self):
         pass
-        
-    def moveforward(self):
-        pass
     
     def turnleft(self):               #code for turning 
         turned = False
         motorstarted = False
         slowflag = False
+        nearlyturned = False
         
-        while turned == False:
-            if slowflag == False and motorstarted == False:
-                self.left.Forward(60)
-                self.right.Reverse(60)
+        while turned == False:                                          #keeps turning until detects it is on line. 
+            if slowflag == False and motorstarted == False:        #flags to make sure motor instructions are only input once
+                self.left.Forward(70)
+                self.right.Reverse(70)
                 motorstarted = True
             
             sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
@@ -110,14 +108,15 @@ class Rover:
             if sensorvalues[0] == 1:                   #slows down turn when outer sensor detects line desired 
                 if slowflag == False:
                     slowflag = True
-                    self.left.Forward(50)
-                    self.right.Reverse(50)
+                    self.left.Forward(55)
+                    self.right.Reverse(55)
         
             if sensorvalues[2] == 1:
+                nearlyturned = True
+                
+            if sensorvalues[3] == 1 and sensorvalues[0] == 0 and nearlyturned == True:    #outer left past line, inner right has hit line so it is turned, inner left having previously gone over line
                 turned = True
-                time.sleep(0.4)
-         #   if sensorvalues == [0, 0, 1, 1]:   #redefine as an interrupt
-         #       turned = True
+            time.sleep(0.05)
             
             
 
