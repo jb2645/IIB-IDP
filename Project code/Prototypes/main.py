@@ -1,8 +1,9 @@
 #Main Code
-from "General Component Classes.py" import *
-from "Linefollowing.py" import *
-from "General Component Classes.py" import *
+from general_component_classes import *
+from line_following import *
+from rover_class_creation import *
 from machine import Pin
+import time
 from utime import sleep
 
 #definitions
@@ -26,7 +27,7 @@ def button_pressed():
             running = True
             print("STARTED")
             
-        if running:
+        elif running:
             running = False
             print("STOPPED")
 
@@ -40,22 +41,27 @@ button.irq(trigger=Pin.IRQ_RISING, handler=button_pressed)
 
 #Defining Rover
 motorL = Motor(dirPin=4, PWMPin=5)#check values later
-motorR = Motor(dirPin=6, PWMPin=7)
-Robot = Rover(motorL, motorR) #update as more components added
+motorR = Motor(dirPin=7, PWMPin=6)
+sensors = Optocoupler(12, 21, 14, 20)
+Robot = Rover(motorL, motorR, sensors)
+follower = LineFollow(Robot, sensors)
 
-
-
+running = True
 if __name__ == "__main__":
     while running == False:
         pass
 
     while running == True:
-        if Robot.GetRoverState() == "Travel":
+        #if Robot.GetRoverState() == "Travel":
             #run line following program
-        elif Robot.GetRoverState() == "Sensing":
+        #elif Robot.GetRoverState() == "Sensing":
             #run sensing routine
 
-            
+        Robot.drive(100, 100)
+        print(1)
+        time.sleep(1)
+        running = False
+    Robot.stop()
             
     ####Main code#####
     
