@@ -27,7 +27,7 @@ def button_pressed():
             running = True
             print("STARTED")
             
-        if running:
+        elif running:
             running = False
             print("STOPPED")
 

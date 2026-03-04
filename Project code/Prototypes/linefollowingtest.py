@@ -7,22 +7,26 @@ import time
 from utime import sleep
 
 
-running = True
+running = False
 last_press_time = 0
 DEBOUNCE_MS = 200   # debounce delay in milliseconds
 
-def button_pressed(pin):
+def button_pressed():
     global running, last_press_time
 
-    now = time.ticks_ms()
+    currenttime = time.ticks_ms()
 
     # Debounce check
     if time.ticks_diff(now, last_press_time) > DEBOUNCE_MS:
         if not running:      # Only allow start once
             running = True
             print("STARTED")
+            
+        if running:
+            running = False
+            print("STOPPED")
 
-    last_press_time = now
+    last_press_time = currenttime
 
 
 # Defining Button
