@@ -21,13 +21,13 @@ class Motor:
         
     def set_speed(self, speed=100):               #combines previous functions into single set speed function that sets motor into forward or reverse
         if speed > 0 and speed <= 100:
-            self.mDir.value(0)                     
-            self.pwm.duty_u16(int(65535 * speed / 100))
-            print("Test1")
+            self.Forward(speed)
+            #self.mDir.value(0)                     
+            #self.pwm.duty_u16(int(65535 * speed / 100))
         elif speed < 0 and speed >= -100:
-            self.mDir.value(1)                     
-            self.pwm.duty_u16(int(65535 * -speed / 100))
-            print("Test2")
+            self.Reverse(-speed)
+            #self.mDir.value(1)                     
+            #self.pwm.duty_u16(int(65535 * -speed / 100))
         else:
             print("Invalid motor speed input")
         

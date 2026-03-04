@@ -44,7 +44,7 @@ if __name__ == "__main__":
     bays = [1,2,6,7]
     pos = Position(grid, end_nodes)
     
-    path = Path_LFT(Robot, sensors, pos, follower )
+    path = Path_LFT(Robot, sensors, pos, follower)
     
     # Wait until button pressed
     while not running:
