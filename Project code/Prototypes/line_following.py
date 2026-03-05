@@ -49,7 +49,7 @@ class LineSensors:
         
 
 class LineFollow:
-    def __init__(self, drive, sensors, base_speed=45, correction=15):
+    def __init__(self, drive, sensors, base_speed=70, correction=25):
         self.drive = drive
         self.sensors = sensors
         self.base_speed = base_speed
@@ -98,13 +98,13 @@ class Position:
         else:  # S or W → counting down
             self.node -= 1
         
-        #print(f"Arrived at node {self.node}, row {self.row}")
+        print(f"Arrived at node {self.node}, row {self.row}")
         
         # THEN: Check if it's an end node
         end = self.enode[self.row]
         
         if self.node in end:
-            #print(f"END NODE - TURN!")
+            print(f"END NODE - TURN!")
             return "TURN"
         else:
             return "NODE"
@@ -125,7 +125,7 @@ class Position:
         else:  # S or W
             self.node = new_end_row[0]  # Start from high end
             
-        #print(f"After turn: row={self.row}, heading={self.heading}, node={self.node}")
+        print(f"After turn: row={self.row}, heading={self.heading}, node={self.node}")
         
         
         
@@ -172,6 +172,7 @@ class Path_LFT:
 
         elif self.state == "OUTER_LOOP":
             if event == "JUNCTION" and self.junction == False:
+                sleep(0.1)
                 nodestate = self.pos.on_node()
                 print(nodestate)
                 if nodestate == "TURN":
@@ -201,7 +202,7 @@ class Path_LFT:
 
         elif self.state == "STOP":
             self.drive.drive(45,45)
-            sleep(0.5)
+            sleep(0.3)
             self.drive.stop()
             
         if event == "JUNCTION":
@@ -225,4 +226,6 @@ def OuterSensor_irq():
     CheckDistance = True #may need callback function if sensors are not aligned
 '''
     
+
+
 
