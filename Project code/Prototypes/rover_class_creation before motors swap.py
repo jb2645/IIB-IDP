@@ -101,8 +101,8 @@ class Rover:
         
         while turned == False:                                          #keeps turning until detects it is on line. 
             if slowflag == False and motorstarted == False:        #flags to make sure motor instructions are only input once
-                self.right.Forward(75)
-                self.left.Reverse(75)
+                self.left.Forward(75)
+                self.right.Reverse(75)
                 motorstarted = True
             
             sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
@@ -111,8 +111,8 @@ class Rover:
                 if slowflag == False:
                     sleep(0.08)
                     slowflag = True
-                    self.right.Forward(60)
-                    self.left.Reverse(60)
+                    self.left.Forward(60)
+                    self.right.Reverse(60)
         
             if sensorvalues[2] == 1:
                 sleep(0.1)
@@ -133,8 +133,8 @@ class Rover:
         
         while turned == False:
             if slowflag == False and motorstarted == False:
-                self.left.Forward(75)
-                self.right.Reverse(75)
+                self.right.Forward(75)
+                self.left.Reverse(75)
                 motorstarted = True
             
             sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
@@ -143,8 +143,8 @@ class Rover:
                 if slowflag == False:
                     sleep(0.08)
                     slowflag = True
-                    self.left.Forward(60)
-                    self.right.Reverse(60)
+                    self.right.Forward(60)
+                    self.left.Reverse(60)
         
             if sensorvalues[3] == 1:#to discard any anomalous readins in LH sensor
                 sleep(0.1)

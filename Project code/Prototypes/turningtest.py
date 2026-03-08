@@ -8,21 +8,34 @@ from utime import sleep
 
 
 running = False
+reboot_flag = False  # ← New flag
 last_press_time = 0
-DEBOUNCE_MS = 200   # debounce delay in milliseconds
+DEBOUNCE_MS = 200
+DOUBLE_PRESS_MS = 500
 
 def button_pressed(pin):
-    global running, last_press_time
+    global running, last_press_time, reboot_flag
 
-    now = time.ticks_ms()
+    currenttime = time.ticks_ms()
+    time_since_last = time.ticks_diff(currenttime, last_press_time)
 
-    # Debounce check
-    if time.ticks_diff(now, last_press_time) > DEBOUNCE_MS:
-        if not running:      # Only allow start once
-            running = True
-            print("STARTED")
+    if time_since_last > DEBOUNCE_MS:
+        
+        # Check for double press
+        if time_since_last < DOUBLE_PRESS_MS:
+            reboot_flag = True  # ← Set flag instead of resetting here
+        
+        else:
+            # Single press - toggle start/stop
+            running = not running
+            
+            if running:
+                print("STARTED")
+            else:
+                Robot.stop()
+                print("STOPPED")
 
-    last_press_time = now
+    last_press_time = currenttime
 
 
 # Defining Button
@@ -38,13 +51,7 @@ Robot = Rover(motorL, motorR, sensors)
 follower = LineFollow(Robot, sensors)
 
 
-if __name__ == "__main__":
-    grid = [(3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(9,5),(9,5)]
-    bays = [1,2,6,7]
-    pos = Position(grid)
-    
-    path = Path_LFT(Robot, sensors)
-    
+if __name__ == "__main__":        
     # Wait until button pressed
     while not running:
         Robot.stop()
@@ -52,12 +59,16 @@ if __name__ == "__main__":
 
     # Main loop
     while running:
-
-        event = sensors.junction_detection()
-        path.update()        
-        
-        pos.turn_end(1)
-        follower.adjust()
+        #Robot.motortest()
+        #time.sleep(5)
+        #Robot.stop()
+        Robot.turnleft()
+        #Robot.reverseleft()
+        #event = sensors.junction_detection()
+        #path.update()        
+       # 
+        #pos.turn_end(1)
+        #follower.adjust()
         #if pos.state == "CLEAR":
        #     print("Clear")
         #    follower.adjust()
