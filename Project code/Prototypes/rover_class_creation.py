@@ -10,7 +10,7 @@ from libs.tcs3472_micropython.tcs3472 import tcs3472
 #from libs.DFRobot_TMF8x01.DFRobot_TMF8x01 import DFRobot_TMF8801, DFRobot_TMF8701    #shouldnt have this sensor?
 
 class Rover:
-    def __init__(self, motorL, motorR, Optocoupler):
+    def __init__(self, motorR, motorL, Optocoupler, horizontalservo, verticalservo, isholdingblock = False):
         self.state = "Travel"
         self.left = motorL
         self.right = motorR
@@ -20,20 +20,16 @@ class Rover:
         self.greenled = Pin(10, Pin.OUT)
         self.redled = Pin(9, Pin.OUT)
         self.yellowled = Pin(8, Pin.OUT)
+        self.isholdingblock = isholdingblock
+        self.horizontalservo = horizontalservo
+        self.verticalservo = verticalservo
+
         
-        #define all other sensors when decided
+    def SetBlockStatus(self, isholdingblock):
+        self.isholdingblock = isholdingblock
         
-    def SensingState(self):
-        self.state = "Sensing"
-        
-    def TravelState(self):
-        self.state = "Travel"
-        
-    def PickupState(self):
-        self.state = "Pickup"
-        
-    def GetRoverState(self):
-        return self.state
+    def GetBlockStatus(self):
+        return self.isholdingblock
         
     def drive(self, left_speed, right_speed):
         self.left.set_speed(left_speed)
@@ -73,15 +69,8 @@ class Rover:
             return "None"
         
     def pickup(self):
-        #linefollow until within 1cm
-        while self.getDistance("F") > 1:    #value to be determined later 
-            self.linefollow()
-
-        
-        colour = self.Determinecolour()
-        return colour
-        #if colour == "Blue":
-        #    destination =
+        self.isholdingblock = True
+        self.verticalservo.
         
         
     def putdown(self):
@@ -89,6 +78,7 @@ class Rover:
         self.greenled.value(0)
         self.redled.value(0)
         self.yellowled.value(0)
+        self.isholdingblock = False
         
         
         pass
@@ -178,6 +168,7 @@ class Rover:
                 self.left.Reverse(75)
                 motorstarted = True
             
+            ###Test to verify which way round sensor detection needs to work
             sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
             
             if sensorvalues[0] == 1:                   #slows down turn when outer sensor detects line desired 
@@ -186,6 +177,36 @@ class Rover:
                     slowflag = True
                     self.right.Forward(60)
                     self.left.Reverse(60)
+        
+            if sensorvalues[2] == 1:#to discard any anomalous readins in LH sensor
+                sleep(0.1)
+                nearlyturned = True
+                
+            if sensorvalues[3] == 1 and sensorvalues[1] == 0 and nearlyturned == True:
+                sleep(0.2)
+                turned = True
+                
+    def reverseright(self):
+        turned = False
+        motorstarted = False
+        slowflag = False
+        nearlyturned = False
+        
+        while turned == False:
+            self
+            if slowflag == False and motorstarted == False:
+                self.left.Forward(75)
+                self.right.Reverse(75)
+                motorstarted = True
+            
+            sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
+            
+            if sensorvalues[0] == 1:                   #slows down turn when outer sensor detects line desired 
+                if slowflag == False:
+                    sleep(0.08)
+                    slowflag = True
+                    self.left.Forward(60)
+                    self.right.Reverse(60)
         
             if sensorvalues[2] == 1:#to discard any anomalous readins in LH sensor
                 sleep(0.1)

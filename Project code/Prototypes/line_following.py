@@ -72,6 +72,22 @@ class LineFollow:
         else:
             self.drive.drive(self.base_speed, self.base_speed)
 
+    def reverseadjust(self):
+        left, right = self.sensors.read_line()
+        
+        if left == 0 and right == 0:
+            self.drive.drive(-self.base_speed, -self.base_speed)
+
+        elif left == 0 and right == 1:
+            self.drive.drive(-self.base_speed + self.correction,
+                             -self.base_speed - self.correction)
+
+        elif left == 1 and right == 0:
+            self.drive.drive(-self.base_speed - self.correction,
+                             -self.base_speed + self.correction)
+        
+        else:
+            self.drive.drive(-self.base_speed, -self.base_speed)
 
 class Position:
     def __init__(self, grid, end_nodes):
@@ -145,6 +161,7 @@ class Path_LFT:
         self.turn_count = 0
         self.start_nodes = 0
         self.junction = False
+        
 
     def update(self):
         #print(self.state)
@@ -189,6 +206,40 @@ class Path_LFT:
                     self.drive.drive(45,45)
             else:
                 self.follower.adjust()
+
+        elif self.state == "PICKUP":
+            #finished = False
+            #blockdistance = 10
+            #while blockdistance > 1:   #drives toward block until within 1cm - distance to be determined
+            #    blockdistance = self.drive.getDistance("F")
+            #    self.follower.adjust()
+            #self.drive.stop()
+            #self.drive.pickup()
+            #colour = self.drive.DetermineColour()   
+            #while
+            #self.drive.reverseright() #sam to change with pathing algorithm
+            #self.state = "RETURNING"
+
+            ##Rewrite to fit style
+            blockdistance  = self.drive.getDistance("F")
+            if event == "JUNCTION":
+                self.drive.reverseleft()   #sam to implement pathing later
+                self.state = "RETURNING" # again pathing check later
+
+            elif blockdistance < 1:
+                self.drive.stop()
+                self.drive.pickup()
+                colour = self.drive.DetermineColour() 
+                #self.drive.SetBlockStatus(True)
+
+            elif self.drive.GetBlockStatus() == True:
+                self.follower.reverseadjust()
+            else: 
+                self.follower.adjust()
+
+
+
+
 
         elif self.state == "RETURNING":
             if event == "JUNCTION" and self.junction == False:

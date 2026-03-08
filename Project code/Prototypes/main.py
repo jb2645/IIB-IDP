@@ -43,7 +43,9 @@ button.irq(trigger=Pin.IRQ_RISING, handler=button_pressed)
 motorL = Motor(dirPin=4, PWMPin=5)#check values later
 motorR = Motor(dirPin=7, PWMPin=6)
 sensors = Optocoupler(12, 21, 14, 20)
-Robot = Rover(motorL, motorR, sensors)
+verticalservo = Servo(13)
+horizontalservo = Servo(15)
+Robot = Rover(motorL, motorR, sensors, horizontalservo, verticalservo)
 follower = LineFollow(Robot, sensors)
 
 running = True
