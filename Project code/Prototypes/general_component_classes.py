@@ -31,10 +31,16 @@ class Motor:
         
 class Servo:                                 #defines servo class for controlling any actuators in the design
     def __init__(self, PWMPin):
-        self.pwm_pin = PWM(Pin(PWMPin), 100)
+        self.pwm_pin = PWM(Pin(PWMPin), 50)
+        self.min = 1638
+        self.max = 8191
+        
            
     def setrotation(self, rotation):
-        u16_level = int(65535 * rotation / 100)
+        #lineraly interpolate rotation to correct value
+        
+        u16_level = int((rotation / 270) * (self.max - self.min) + self.min )
+        print(u16_level)
         self.pwm_pin.duty_u16(u16_level)
     
 

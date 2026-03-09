@@ -70,7 +70,7 @@ class Rover:
         
     def pickup(self):
         self.isholdingblock = True
-        self.verticalservo.
+        #self.verticalservo.
         
         
     def putdown(self):

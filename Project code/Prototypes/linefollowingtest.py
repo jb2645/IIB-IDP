@@ -45,12 +45,14 @@ button_pin = 22
 button = Pin(button_pin, Pin.IN, Pin.PULL_DOWN)
 button.irq(trigger=Pin.IRQ_RISING, handler=button_pressed)
 
-motorL = Motor(dirPin=4, PWMPin=5)
+#Defining Rover
+motorL = Motor(dirPin=4, PWMPin=5)#check values later
 motorR = Motor(dirPin=7, PWMPin=6)
 sensors = Optocoupler(12, 21, 14, 20)
-Robot = Rover(motorL, motorR, sensors)
+verticalservo = Servo(13)
+horizontalservo = Servo(15)
+Robot = Rover(motorL, motorR, sensors, horizontalservo, verticalservo)
 follower = LineFollow(Robot, sensors)
-
 
 if __name__ == "__main__":
     grid = [(3,1),(2,0),(3,1),(2,0),(2,5),(7,6),(9,5),(9,5)]
