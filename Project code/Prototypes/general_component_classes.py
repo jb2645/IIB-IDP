@@ -24,6 +24,8 @@ class Motor:
             self.Forward(speed)
         elif speed < 0 and speed >= -100:
             self.Reverse(-speed)
+        elif speed == 0:
+            self.off()
         else:
             print("Invalid motor speed input")
         

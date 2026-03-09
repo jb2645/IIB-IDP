@@ -162,7 +162,7 @@ class Rover:
         nearlyturned = False
         
         while turned == False:
-            self
+            #self
             if slowflag == False and motorstarted == False:
                 self.right.Forward(75)
                 self.left.Reverse(75)
@@ -193,7 +193,7 @@ class Rover:
         nearlyturned = False
         
         while turned == False:
-            self
+            #self
             if slowflag == False and motorstarted == False:
                 self.left.Forward(75)
                 self.right.Reverse(75)
