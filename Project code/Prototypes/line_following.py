@@ -139,6 +139,9 @@ class Path:
         #block and delivery targets
         self.colour = None
         self.delivery_target = None
+
+        #Flag for block check
+        self.noblock = False
         
     def save_position(self):
         #save current position for later return
@@ -339,18 +342,18 @@ class Path:
                     
                 else:
                     self.follower.adjust()
-                '''    
+                   
                 if self.pos.row in [1,3,6,7]:
                     current = (self.pos.row,self.pos.node)
                     if current not in self.checked_nodes:
-                        self.distance = self.drive.getDistance("F")
-                        if distance < 5:
+                        self.distance = self.drive.getDistance("R")
+                        if self.distance < 270:
                             self.state = "PICKUP"
                             self.save_position()
                         #sensing on
                         #now need to check if block is present and do something
                         self.checked_nodes.add(current)
-                '''
+                
 
         elif self.state == "PICKUP":
 
@@ -361,7 +364,10 @@ class Path:
                 self.drive.reverseleft()   #sam to implement pathing later
                 self.state = "RETURNING"''' # again pathing check later
 
-            if blockdistance < 1:
+            if blockdistance > 300 and drive.GetBlockStatus() == False:
+                self.noblock = True
+
+            if blockdistance < 10:
                 self.drive.stop()
                 self.drive.pickup()
                 colour = self.drive.DetermineColour() 
@@ -371,9 +377,17 @@ class Path:
                 self.drive.RightUTurn()
                 
             elif junction_triggered:
-                self.state = "DROPOFF"
-                self.current_row = self.pos.row
-                self.colour = self.drive.DetermineColour()
+                if self.noblock == True:
+                    if self.pos.row in [1, 7]:   #again sam check pathing
+                        self.drive.turnright()
+                    else:
+                        self.drive.turnleft()
+                    self.state = "SENSING"
+                else:
+                    self.state = "DROPOFF"
+                    self.current_row = self.pos.row
+                    self.colour = self.drive.DetermineColour()
+
             else: 
                 self.follower.adjust()
                 
@@ -399,7 +413,7 @@ class Path:
                     self.dropoff_turn_count +=1
                     
                 else:
-                    if juction_triggered:
+                    if junction_triggered:
                         nodestate = self.pos.on_node
                         if nodestate == "TURN" and self.colour == "Blue":
                             self.state = "PUTDOWN"
@@ -443,7 +457,7 @@ class Path:
                     self.dropoff_turn_count +=1
                     
                 else:
-                    if juction_triggered:
+                    if junction_triggered:
                         nodestate = self.pos.on_node
                         if nodestate == "TURN" and self.colour == "Red":
                             self.state = "PUTDOWN"
@@ -486,7 +500,7 @@ class Path:
                     self.dropoff_turn_count +=1
                     
                 else:
-                    if juction_triggered:
+                    if junction_triggered:
                         nodestate = self.pos.on_node
                             
                         if nodestate == "TURN" and self.dropoff_turn_count == 1:
@@ -549,7 +563,7 @@ class Path:
                     self.dropoff_turn_count +=1
                     
                 else:
-                    if juction_triggered:
+                    if junction_triggered:
                         nodestate = self.pos.on_node
                             
                         if nodestate == "TURN" and self.dropoff_turn_count == 1:
