@@ -4,7 +4,8 @@ import time
 
 from general_component_classes import *
 from rover_class_creation import * 
-
+ 
+        
 
 class LineFollow:
     def __init__(self, drive, sensors, base_speed=70, correction=25):
@@ -13,22 +14,6 @@ class LineFollow:
         self.base_speed = base_speed
         self.correction = correction
         
- #   def adjust(self):
- #       left, right = self.sensors.read_line()
- #       
- #       if left == 0 and right == 0:
- #           self.drive.drive(self.base_speed, self.base_speed)#
-
-#        elif left == 0 and right == 1:
- #           self.drive.drive(self.base_speed - self.correction,
-  #                           self.base_speed + self.correction)
-
-   #     elif left == 1 and right == 0:
-    #        self.drive.drive(self.base_speed + self.correction,
-     #                        self.base_speed - self.correction)
-        
-      #  else:
-       #     self.drive.drive(self.base_speed, self.base_speed)
     def adjust(self):
         left, right = self.sensors.read_line()
         
@@ -36,17 +21,17 @@ class LineFollow:
             self.drive.drive(self.base_speed, self.base_speed)
 
         elif left == 0 and right == 1:
-            self.drive.drive(self.base_speed + self.correction,
-                             self.base_speed - self.correction)
-
-        elif left == 1 and right == 0:
             self.drive.drive(self.base_speed - self.correction,
                              self.base_speed + self.correction)
+
+        elif left == 1 and right == 0:
+            self.drive.drive(self.base_speed + self.correction,
+                             self.base_speed - self.correction)
         
         else:
             self.drive.drive(self.base_speed, self.base_speed)
 
-    def reverseadjust(self):
+    '''def reverseadjust(self):
         left, right = self.sensors.read_line()
         
         if left == 0 and right == 0:
@@ -62,7 +47,7 @@ class LineFollow:
         
         else:
             self.drive.drive(-self.base_speed, -self.base_speed)
-
+'''
 class Position:
     def __init__(self, grid, end_nodes):
         self.grid = grid
@@ -118,124 +103,6 @@ class Position:
         print(f"After turn: row={self.row}, heading={self.heading}, node={self.node}")
         
         
-        
-        
-                
-
-            
-
-
-'''class Path_LFT:
-    def __init__(self, drive, sensors,pos, follower):
-        self.drive = drive
-        self.sensors = sensors
-        self.pos = pos
-        self.follower = follower
-        self.state = "LEAVING_START"
-        self.turn_count = 0
-        self.start_nodes = 0
-        self.junction = False
-        
-
-    def update(self):
-        #print(self.state)
-        old_state = self.state
-        if self.state!=old_state:
-            print(self.state)
-        event = self.sensors.junction_detection()
-        
-
-        if self.state == "LEAVING_START":
-            #print(self.junction)
-            # Follow until first turn
-            #print(event)
-            if event == "JUNCTION" and self.junction==False:
-                self.start_nodes+=1
-                #print(self.start_nodes)
-                if self.start_nodes == 2:
-                    self.drive.drive_onto_junction()
-                    self.drive.turnleft()
-                    #self.pos.turn_end(1)
-                    self.pos.heading = 3
-                    self.state = "OUTER_LOOP"
-            else:
-                self.follower.adjust()
-
-        elif self.state == "OUTER_LOOP":
-            if event == "JUNCTION" and self.junction == False:
-                sleep(0.1)
-                nodestate = self.pos.on_node()
-                print(nodestate)
-                if nodestate == "TURN":
-                    
-                    self.turn_count += 1
-                    self.drive.drive_onto_junction()
-                    self.drive.turnright()
-                    self.pos.turn_end(0)
-                
-
-                    if self.turn_count == 4:
-                        self.state = "RETURNING"
-                elif nodestate == "NODE":
-                    self.drive.drive(45,45)
-            else:
-                self.follower.adjust()
-
-        elif self.state == "PICKUP":
-            #finished = False
-            #blockdistance = 10
-            #while blockdistance > 1:   #drives toward block until within 1cm - distance to be determined
-            #    blockdistance = self.drive.getDistance("F")
-            #    self.follower.adjust()
-            #self.drive.stop()
-            #self.drive.pickup()
-            #colour = self.drive.DetermineColour()   
-            #while
-            #self.drive.reverseright() #sam to change with pathing algorithm
-            #self.state = "RETURNING"
-
-            ##Rewrite to fit style
-            blockdistance  = self.drive.getDistance("F")
-            if event == "JUNCTION":
-                self.drive.reverseleft()   #sam to implement pathing later
-                self.state = "RETURNING" # again pathing check later
-
-            elif blockdistance < 1:
-                self.drive.stop()
-                self.drive.pickup()
-                colour = self.drive.DetermineColour() 
-                #self.drive.SetBlockStatus(True)
-
-            elif self.drive.GetBlockStatus() == True:
-                self.follower.reverseadjust()
-            else: 
-                self.follower.adjust()
-
-
-
-
-
-        elif self.state == "RETURNING":
-            if event == "JUNCTION" and self.junction == False:
-                self.pos.on_node()
-                if self.pos.node == 2:
-                    self.drive.drive_onto_junction()
-                    self.drive.turnleft()
-                    self.state = "STOP"
-            else:
-                self.follower.adjust()
-
-        elif self.state == "STOP":
-            self.drive.drive(45,45)
-            sleep(0.3)
-            self.drive.stop()
-            
-        if event == "JUNCTION":
-            self.junction = True
-        elif event == "CLEAR":
-            self.junction = False'''
-        
-        
 class Path:
     def __init__(self, drive, sensors,pos, follower):
         self.drive = drive
@@ -269,14 +136,7 @@ class Path:
         
     def save_position(self):
         #save current position for later return
-        self.saved_position = {
-            "row": self.pos.row,
-            "node": self.pos.node,
-            "heading": self.pos.heading
-        }
-        self.saved_state = self.state
         self.saved_pos_state = self.pos_state
-        self.saved_turn_count = self.turn_count
         
     def restore_position(self):
         if self.saved_position:
@@ -298,20 +158,6 @@ class Path:
         #similarly whatever jack chooses
         #imagine try except statement that reads how far block is
         pass
-
-        
-    
-    def find_route_to(self,target_row,target_node):
-        current_row = self.pos.row
-        current_node = self.pos.node
-        current_heading = self.pos.heading
-        
-        route = []
-        
-        return route
-        #this needs to be extended/changed
-        #when called it returns info on where to go to return back to previous position
-        #maybe all that is needed is a turn count
     
     def debounce_junction(self,event):
         if event!="JUNCTION":
@@ -353,13 +199,7 @@ class Path:
                 
         elif self.state == "SENSING":
             
-            if self.pos.row in [1,2,6,7]:
-                current = (self.pos.row,self.pos.node)
-                if current not in self.checked_nodes:
-                    self.drive.getDistance("F")
-                    #sensing on
-                    #now need to check if block is present and do something
-                    self.checked_nodes.add(current)
+            
                 
             
             if self.pos_state == "OUTER_LOOP":
@@ -392,45 +232,111 @@ class Path:
                     if self.turn_count < 2:
                         if nodestate == "TURN":
                             self.turn_count+=1
-                            self.drive.drive_onto_junction
+                            self.drive.drive_onto_junction()
                             self.drive.turnright()
                             self.pos.turn_end(0)
                             
-                        elif nodestate == "NODE":
-                            self.drive.drive(45,45)
+                        elif nodestate = "NODE":
+                            self.drive.drive(60,60)
                     
                     
                     #phase 2 - go onto ramp
                     elif self.turn_count == 2:
                         if nodestate == "NODE":
                             self.turn_count+=1
-                            self.drive.drive_onto_junction
+                            self.drive.drive_onto_junction()
                             self.drive.turnright()
                             self.pos.turn_end(0)
+                        else:
+                            self.drive.drive(60,60)
                     
                     
                     #phase 3 - goto pickup bay        
                     elif self.turn_count < 5 and self.turn_count >2:
                         if nodestate == "TURN":
                             self.turn_count+=1
-                            self.drive.drive_onto_junction
+                            self.drive.drive_onto_junction()
                             self.drive.turnright()
                             self.pos.turn_end(0)
                             
-                        elif nodestate == "NODE":
+                        elif nodestate = "NODE":
                             self.drive.drive(45,45)
                             
-                    #phase 4 - reverse out of bay
-                    #phase 5 - onto second bay
-                    #phase 6 - reverse out of bay
-                    #phase 7 - leave ramp and return home
+                    #phase 4 - leave bay
+                    #U-turn then straight then left
+                    elif self.turn_count <7 and self.turn_count>4:
+                        if nodestate == "TURN" and self.turn_count == 5:
+                            self.turn_count+=1
+                            #do a left U-turn
+                            self.pos.node+=-1
+                        elif nodestate == "TURN" and self.turn_count == 6:
+                            self.turn_count+=1
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_left()
+                            self.pos.turn_end(1)
+                        else:
+                            self.drive.drive(60,60)
                     
+                            
+                    #phase 5 - onto second bay
+                    #straight to end then left
+                    elif self.turn_count == 7:
+                        if nodestate == "TURN":
+                            self.turn_count+=1
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_left()
+                            self.pos.turn_end(1)
+                        else:
+                            self.drive.drive(60,60)
+                    
+                    #phase 6 - leave bay
+                    #U-turn then straight then right
+                    elif self.turn_count <10 and self.turn_count>7:
+                        if nodestate == "TURN" and self.turn_count == 8:
+                            self.turn_count+=1
+                            #do a right U-turn
+                            self.pos.node+=-1
+                        elif nodestate == "TURN" and self.turn_count == 9:
+                            self.turn_count+=1
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_right()
+                            self.pos.turn_end(0)
+                        else:
+                            self.drive.drive(60,60)
+                    
+                    #phase 7 - leave ramp and return home
+                    #right, right, right, right, in
+                    elif self.turn_count == 10:
+                        self.turn_count+=1
+                        self.drive.drive_onto_junction()
+                        self.drive.turn_right()
+                        self.pos.turn_end(0)
+                        
+                    elif self.turn_count>10 and self.turn_count<14:
+                        if nodestate == "TURN":
+                            self.turn_count+=1
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_right()
+                            self.pos.turn_end(0)
+                        else:
+                            self.drive.drive(60,60)
+                    
+                    elif self.turn_count == 14:
+                        self.state = "RETURNING"
+                        
 
                     
                     
                 else:
                     self.follower.adjust()
-                
+                    
+                if self.pos.row in [1,2,6,7]:
+                current = (self.pos.row,self.pos.node)
+                    if current not in self.checked_nodes:
+                        self.drive.getDistance("F")
+                        #sensing on
+                        #now need to check if block is present and do something
+                        self.checked_nodes.add(current)
     
 
         elif self.state == "PICKUP":
