@@ -396,7 +396,7 @@ class Path:
                             self.drive.turnright()
                             self.pos.turn_end(0)
                             
-                        elif nodestate = "NODE":
+                        elif nodestate == "NODE":
                             self.drive.drive(45,45)
                     
                     
@@ -417,7 +417,7 @@ class Path:
                             self.drive.turnright()
                             self.pos.turn_end(0)
                             
-                        elif nodestate = "NODE":
+                        elif nodestate == "NODE":
                             self.drive.drive(45,45)
                             
                     #phase 4 - reverse out of bay

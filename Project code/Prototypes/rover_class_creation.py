@@ -91,9 +91,10 @@ class Rover:
         
         while turned == False:                                          #keeps turning until detects it is on line. 
             if slowflag == False and motorstarted == False:        #flags to make sure motor instructions are only input once
-                self.right.Forward(75)
+                self.right.Forward(85)
                 self.left.Reverse(75)
                 motorstarted = True
+                sleep(0.1)
             
             sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
             
@@ -123,9 +124,10 @@ class Rover:
         
         while turned == False:
             if slowflag == False and motorstarted == False:
-                self.left.Forward(75)
+                self.left.Forward(85)
                 self.right.Reverse(75)
                 motorstarted = True
+                sleep(0.1)
             
             sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
             
@@ -144,6 +146,21 @@ class Rover:
                 sleep(0.2)
                 turned = True
                 
+
+    def RightUTurn(self):
+        turned = False
+        self.left.Forward(85)
+        self.right.Reverse(75)
+        sleep (1.75)
+        self.stop()
+        
+    def LeftUTurn(self):
+        turned = False
+        self.right.Forward(85)
+        self.left.Reverse(75)
+        sleep (1.75)
+        self.stop()
+
     def motortest(self):
         print("Test")
         self.right.Forward(75)
