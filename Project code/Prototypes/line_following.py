@@ -340,17 +340,7 @@ class Path:
     
 
         elif self.state == "PICKUP":
-            #finished = False
-            #blockdistance = 10
-            #while blockdistance > 1:   #drives toward block until within 1cm - distance to be determined
-            #    blockdistance = self.drive.getDistance("F")
-            #    self.follower.adjust()
-            #self.drive.stop()
-            #self.drive.pickup()
-            #colour = self.drive.DetermineColour()   
-            #while
-            #self.drive.reverseright() #sam to change with pathing algorithm
-            #self.state = "RETURNING"
+
 
             ##Rewrite to fit style
             blockdistance  = self.drive.getDistance("F")
@@ -368,9 +358,19 @@ class Path:
                 self.follower.reverseadjust()
             else: 
                 self.follower.adjust()
-
-
-
+                
+        elif self.state == "PUTDOWN":
+            if event == "JUNCTION":
+                self.drive.drive(70,70)
+                sleep(0.3)
+                self.drive.putdown()
+                self.LeftUTurn()
+                self.drive.drive(70,70)
+                sleep(0.5)
+            else:
+                self.adjust()
+                    
+                    
 
 
         elif self.state == "RETURNING":
