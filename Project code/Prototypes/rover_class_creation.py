@@ -83,7 +83,28 @@ class Rover:
         
         pass
     
-    def turnleft(self):               #code for turning 
+    
+    def turnleft(self):
+        turned = False
+        self.right.Forward(80)
+        self.left.Forward(80)
+        sleep(0.23)
+        self.right.Forward(85)
+        self.left.Reverse(75)
+        sleep (0.85)
+        self.stop()
+        
+    def turnright(self):
+        turned = False
+        self.right.Forward(80)
+        self.left.Forward(80)
+        sleep(0.23)
+        self.left.Forward(85)
+        self.right.Reverse(75)
+        sleep (0.85)
+        self.stop()
+    
+    def turnleft1(self):               #code for turning 
         turned = False
         motorstarted = False
         slowflag = False
@@ -116,7 +137,7 @@ class Rover:
             
             
 
-    def turnright(self):
+    def turnright1(self):
         turned = False
         motorstarted = False
         slowflag = False
