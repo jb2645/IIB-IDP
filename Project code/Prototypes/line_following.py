@@ -122,7 +122,7 @@ class Path:
         #position counters
         self.turn_count = 0
         self.start_nodes = 0
-        self.dropoff_turn_count
+        self.dropoff_turn_count = 0
         
         #junction error avoidance
         self.junction = False
@@ -343,29 +343,33 @@ class Path:
                 else:
                     self.follower.adjust()
                    
-                if self.pos.row in [1,3,6,7]:
-                    current = (self.pos.row,self.pos.node)
-                    if current not in self.checked_nodes:
-                        self.distance = self.drive.getDistance("R")
-                        if self.distance < 270:
-                            self.state = "PICKUP"
-                            self.save_position()
-                        #sensing on
-                        #now need to check if block is present and do something
-                        self.checked_nodes.add(current)
-                
+            if self.pos.row in [1,3,6,7]:
+                current = (self.pos.row,self.pos.node)
+                if current not in self.checked_nodes:
+                    self.distance = self.drive.getDistance("R")
+                    print(self.distance)
+                    if self.distance < 270:
+                        self.state = "PICKUP"
+                        self.drive.turnright()     #should probably fix properly later
+                        self.save_position()
+                    #sensing on
+                    #now need to check if block is present and do something
+                    self.checked_nodes.add(current)
+            
 
         elif self.state == "PICKUP":
 
 
             ##Rewrite to fit style
-            blockdistance  = self.drive.getDistance("F")
+            #blockdistance  = self.drive.getDistance("F")
+            blockdistance = 301
             '''if event == "JUNCTION":
                 self.drive.reverseleft()   #sam to implement pathing later
                 self.state = "RETURNING"''' # again pathing check later
 
-            if blockdistance > 300 and drive.GetBlockStatus() == False:
+            if blockdistance > 300 and self.drive.GetBlockStatus() == False:
                 self.noblock = True
+                self.drive.RightUTurn()
 
             if blockdistance < 10:
                 self.drive.stop()
