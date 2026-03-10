@@ -102,6 +102,9 @@ class Position:
             
         print(f"After turn: row={self.row}, heading={self.heading}, node={self.node}")
         
+    def U_turn(self):
+        self.heading = (self.heading+2)%4
+        
         
 class Path:
     def __init__(self, drive, sensors,pos, follower):
@@ -109,6 +112,7 @@ class Path:
         self.sensors = sensors
         self.pos = pos
         self.follower = follower
+        self.distance = 0
         
         #states
         self.state = "LEAVING_START"
@@ -267,6 +271,8 @@ class Path:
                     elif self.turn_count <7 and self.turn_count>4:
                         if nodestate == "TURN" and self.turn_count == 5:
                             self.turn_count+=1
+                            self.pos.U_Turn()
+                            self.drive.LeftUTurn()
                             #do a left U-turn
                             self.pos.node+=-1
                         elif nodestate == "TURN" and self.turn_count == 6:
@@ -294,7 +300,8 @@ class Path:
                     elif self.turn_count <10 and self.turn_count>7:
                         if nodestate == "TURN" and self.turn_count == 8:
                             self.turn_count+=1
-                            #do a right U-turn
+                            self.pos.U_Turn()
+                            self.drive.RightUTurn()
                             self.pos.node+=-1
                         elif nodestate == "TURN" and self.turn_count == 9:
                             self.turn_count+=1
@@ -333,7 +340,10 @@ class Path:
                 if self.pos.row in [1,2,6,7]:
                 current = (self.pos.row,self.pos.node)
                     if current not in self.checked_nodes:
-                        self.drive.getDistance("F")
+                        self.distance = self.drive.getDistance("F")
+                        if distance < 5:
+                            self.state = "PICKUP"
+                            self.save_position()
                         #sensing on
                         #now need to check if block is present and do something
                         self.checked_nodes.add(current)
@@ -344,18 +354,21 @@ class Path:
 
             ##Rewrite to fit style
             blockdistance  = self.drive.getDistance("F")
-            if event == "JUNCTION":
+            '''if event == "JUNCTION":
                 self.drive.reverseleft()   #sam to implement pathing later
-                self.state = "RETURNING" # again pathing check later
+                self.state = "RETURNING"''' # again pathing check later
 
-            elif blockdistance < 1:
+            if blockdistance < 1:
                 self.drive.stop()
                 self.drive.pickup()
                 colour = self.drive.DetermineColour() 
                 #self.drive.SetBlockStatus(True)
 
             elif self.drive.GetBlockStatus() == True:
-                self.follower.reverseadjust()
+                self.drive.RightUTurn()
+                
+            elif junction_triggered:
+                self.state = "DROPOFF"
             else: 
                 self.follower.adjust()
                 
@@ -371,6 +384,24 @@ class Path:
                 self.adjust()
                     
                     
+        elif self.state == "DROPOFF":
+            current_row = self.pos.row
+            colour = self.drive.DetermineColour()
+            
+            if current_row == 1:
+                self.drive.turn_left()
+                self.pos.U_Turn
+                
+            elif current_row == 3:
+                self.drive.turn_right()
+                
+            elif current_row == 6:
+                self.drive.turn_right()
+                self.pos.U_Turn
+                
+            elif current_row == 7:
+                self.drive.turn_left()
+                self.pos.U_Turn
 
 
         elif self.state == "RETURNING":
