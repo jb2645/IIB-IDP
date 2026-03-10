@@ -1,5 +1,6 @@
 from machine import Pin, PWM
 from utime import sleep
+import time
 
 from general_component_classes import *
 from rover_class_creation import * 
@@ -124,7 +125,7 @@ class Position:
             
 
 
-class Path_LFT:
+'''class Path_LFT:
     def __init__(self, drive, sensors,pos, follower):
         self.drive = drive
         self.sensors = sensors
@@ -232,24 +233,258 @@ class Path_LFT:
         if event == "JUNCTION":
             self.junction = True
         elif event == "CLEAR":
+            self.junction = False'''
+        
+        
+class Path:
+    def __init__(self, drive, sensors,pos, follower):
+        self.drive = drive
+        self.sensors = sensors
+        self.pos = pos
+        self.follower = follower
+        
+        #states
+        self.state = "LEAVING_START"
+        self.pos_state = "START"
+        self.checked_nodes = set()
+        
+        #position counters
+        self.turn_count = 0
+        self.start_nodes = 0
+        
+        #junction error avoidance
+        self.junction = False
+        self.time_since_junction = 0
+        self.junction_debounce = 300
+        
+        #saved position
+        self.saved_position = None
+        self.saved_state = None
+        self.saved_pos_state = None
+        self.saved_turn_count = 0
+        
+        #block and delivery targets
+        self.block_colour = None
+        self.delivery_target = None
+        
+    def save_position(self):
+        #save current position for later return
+        self.saved_position = {
+            "row": self.pos.row,
+            "node": self.pos.node,
+            "heading": self.pos.heading
+        }
+        self.saved_state = self.state
+        self.saved_pos_state = self.pos_state
+        self.saved_turn_count = self.turn_count
+        
+    def restore_position(self):
+        if self.saved_position:
+            self.pos.row = self.saved_position["row"]
+            self.pos.node = self.saved_position["node"]
+            self.pos.heading = self.saved_position["heading"]
+            self.state = self.saved_state
+            self.pos_state = self.saved_pos_state
+            self.turn_count = self.saved_turn_count
+            
+            self.saved_position = None
+            
+    def check_for_block(self):
+        #whatever jack has come up with might not even need this function here
+        #imagine a try except statement checking if block is present
+        pass
+    
+    def at_block(self):
+        #similarly whatever jack chooses
+        #imagine try except statement that reads how far block is
+        pass
+
+        
+    
+    def find_route_to(self,target_row,target_node):
+        current_row = self.pos.row
+        current_node = self.pos.node
+        current_heading = self.pos.heading
+        
+        route = []
+        
+        return route
+        #this needs to be extended/changed
+        #when called it returns info on where to go to return back to previous position
+        #maybe all that is needed is a turn count
+    
+    def debounce_junction(self,event):
+        if event!="JUNCTION":
             self.junction = False
+            return False
+        
+        current_time = time.ticks(ms)
+        
+        if not self.junction:
+            if time.ticks_diff(current_time, self.last_junction_time):
+                self.junction = True
+                self.last_junction_time = current_time
+                return True
+        return False
+        
+    def update(self):
+        event = self.sensors.junction_detection()
+        junction_triggered = self.debounce_junction(event)
         
 
-'''
-def SensingInterrupt():
-    if drive.GetRoverState() == "Sensing":
-        OuterSensorGPIOnum = 9
-        OuterSensor = Pin(OuterSensorGPIOnum, Pin.IN, Pin.PULL_DOWN)
-        OuterSensor.irq(handler = OuterSensor_irq)
+        
 
-    else:
-        OuterSensor = Pin(OuterSensorGPIOnum, Pin.IN, Pin.PULL_DOWN)
-        OuterSensor.irq(handler=None)
+        if self.state == "LEAVING_START":
+            #print(self.junction)
+            # Follow until first turn
+            #print(event)
+            if junction_triggered:
+                self.start_nodes+=1
+                #print(self.start_nodes)
+                if self.start_nodes == 2:
+                    self.drive.drive_onto_junction()
+                    self.drive.turnleft()
+                    #self.pos.turn_end(1)
+                    self.pos.heading = 3
+                    self.state = "SENSING"
+                    self.pos_state = "OUTER_LOOP"
+            else:
+                self.follower.adjust()
+                
+        elif self.state == "SENSING":
+            
+            if self.pos.row in [1,2,6,7]:
+                current = (self.pos.row,self.pos.node)
+                if current not in self.checked_nodes:
+                    self.drive.getDistance("F")
+                    #sensing on
+                    #now need to check if block is present and do something
+                    self.checked_nodes.add(current)
+                
+            
+            if self.pos_state == "OUTER_LOOP":
+                if junction_triggered:
+                    sleep(0.1)
+                    nodestate = self.pos.on_node()
+                    if nodestate == "TURN":
+                    
+                        self.turn_count += 1
+                        self.drive.drive_onto_junction()
+                        self.drive.turnright()
+                        self.pos.turn_end(0)
+                    
 
-def OuterSensor_irq():
-    CheckDistance = True #may need callback function if sensors are not aligned
-'''
+                        if self.turn_count == 4:
+                            self.pos_state = "RAMP"
+                            self.turn_count = 0
+                    elif nodestate == "NODE":
+                        self.drive.drive(45,45)
+                else:
+                    self.follower.adjust()
+                    
+            elif self.pos_state == "RAMP":
+                if junction_triggered:
+                    nodestate = self.pos.on_node()
+                   
+                   #gonna use if statements as phases for position
+                    
+                    #phase 1 - go to bottom of ramp
+                    if self.turn_count < 2:
+                        if nodestate == "TURN":
+                            self.turn_count+=1
+                            self.drive.drive_onto_junction
+                            self.drive.turnright()
+                            self.pos.turn_end(0)
+                            
+                        elif nodestate = "NODE":
+                            self.drive.drive(45,45)
+                    
+                    
+                    #phase 2 - go onto ramp
+                    elif self.turn_count == 2:
+                        if nodestate == "NODE":
+                            self.turn_count+=1
+                            self.drive.drive_onto_junction
+                            self.drive.turnright()
+                            self.pos.turn_end(0)
+                    
+                    
+                    #phase 3 - goto pickup bay        
+                    elif self.turn_count < 5 and self.turn_count >2:
+                        if nodestate == "TURN":
+                            self.turn_count+=1
+                            self.drive.drive_onto_junction
+                            self.drive.turnright()
+                            self.pos.turn_end(0)
+                            
+                        elif nodestate = "NODE":
+                            self.drive.drive(45,45)
+                            
+                    #phase 4 - reverse out of bay
+                    #phase 5 - onto second bay
+                    #phase 6 - reverse out of bay
+                    #phase 7 - leave ramp and return home
+                    
+
+                    
+                    
+                else:
+                    self.follower.adjust()
+                
     
+
+        elif self.state == "PICKUP":
+            #finished = False
+            #blockdistance = 10
+            #while blockdistance > 1:   #drives toward block until within 1cm - distance to be determined
+            #    blockdistance = self.drive.getDistance("F")
+            #    self.follower.adjust()
+            #self.drive.stop()
+            #self.drive.pickup()
+            #colour = self.drive.DetermineColour()   
+            #while
+            #self.drive.reverseright() #sam to change with pathing algorithm
+            #self.state = "RETURNING"
+
+            ##Rewrite to fit style
+            blockdistance  = self.drive.getDistance("F")
+            if event == "JUNCTION":
+                self.drive.reverseleft()   #sam to implement pathing later
+                self.state = "RETURNING" # again pathing check later
+
+            elif blockdistance < 1:
+                self.drive.stop()
+                self.drive.pickup()
+                colour = self.drive.DetermineColour() 
+                #self.drive.SetBlockStatus(True)
+
+            elif self.drive.GetBlockStatus() == True:
+                self.follower.reverseadjust()
+            else: 
+                self.follower.adjust()
+
+
+
+
+
+        elif self.state == "RETURNING":
+            if event == "JUNCTION" and self.junction == False:
+                self.pos.on_node()
+                if self.pos.node == 2:
+                    self.drive.drive_onto_junction()
+                    self.drive.turnleft()
+                    self.state = "STOP"
+            else:
+                self.follower.adjust()
+
+        elif self.state == "STOP":
+            self.drive.drive(45,45)
+            sleep(0.3)
+            self.drive.stop()
+            
+   
+
+
 
 
 
