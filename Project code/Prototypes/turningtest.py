@@ -53,6 +53,7 @@ Robot = Rover(motorL, motorR, sensors, horizontalservo, verticalservo)
 follower = LineFollow(Robot, sensors)
 
 
+
 if __name__ == "__main__":        
     # Wait until button pressed
     while not running:
@@ -64,7 +65,11 @@ if __name__ == "__main__":
         #Robot.motortest()
         #time.sleep(5)
         #Robot.stop()
-        Robot.turnleft()
+        follower.adjust()
+        event = sensors.junction_detection()
+        print(event)
+        if event == "JUNCTION":
+            Robot.turnleft()
         #Robot.motortest()
         #event = sensors.junction_detection()
         #path.update()        
