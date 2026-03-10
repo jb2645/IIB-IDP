@@ -8,7 +8,7 @@ from rover_class_creation import *
         
 
 class LineFollow:
-    def __init__(self, drive, sensors, base_speed=70, correction=25):
+    def __init__(self, drive, sensors, base_speed=75, correction=20):
         self.drive = drive
         self.sensors = sensors
         self.base_speed = base_speed
@@ -21,12 +21,12 @@ class LineFollow:
             self.drive.drive(self.base_speed, self.base_speed)
 
         elif left == 0 and right == 1:
-            self.drive.drive(self.base_speed - self.correction,
-                             self.base_speed + self.correction)
-
-        elif left == 1 and right == 0:
             self.drive.drive(self.base_speed + self.correction,
                              self.base_speed - self.correction)
+
+        elif left == 1 and right == 0:
+            self.drive.drive(self.base_speed - self.correction,
+                             self.base_speed + self.correction)
         
         else:
             self.drive.drive(self.base_speed, self.base_speed)
@@ -125,7 +125,7 @@ class Path:
         
         #junction error avoidance
         self.junction = False
-        self.time_since_junction = 0
+        self.last_junction_time = 0
         self.junction_debounce = 300
         
         #saved position
@@ -168,7 +168,7 @@ class Path:
             self.junction = False
             return False
         
-        current_time = time.ticks(ms)
+        current_time = time.ticks_ms()
         
         if not self.junction:
             if time.ticks_diff(current_time, self.last_junction_time):
@@ -189,6 +189,7 @@ class Path:
             # Follow until first turn
             #print(event)
             if junction_triggered:
+                print(self.start_nodes)
                 self.start_nodes+=1
                 #print(self.start_nodes)
                 if self.start_nodes == 2:
@@ -240,7 +241,7 @@ class Path:
                             self.drive.turnright()
                             self.pos.turn_end(0)
                             
-                        elif nodestate = "NODE":
+                        elif nodestate == "NODE":
                             self.drive.drive(60,60)
                     
                     
@@ -263,7 +264,7 @@ class Path:
                             self.drive.turnright()
                             self.pos.turn_end(0)
                             
-                        elif nodestate = "NODE":
+                        elif nodestate == "NODE":
                             self.drive.drive(45,45)
                             
                     #phase 4 - leave bay
@@ -336,9 +337,9 @@ class Path:
                     
                 else:
                     self.follower.adjust()
-                    
+                '''    
                 if self.pos.row in [1,2,6,7]:
-                current = (self.pos.row,self.pos.node)
+                    current = (self.pos.row,self.pos.node)
                     if current not in self.checked_nodes:
                         self.distance = self.drive.getDistance("F")
                         if distance < 5:
@@ -347,7 +348,7 @@ class Path:
                         #sensing on
                         #now need to check if block is present and do something
                         self.checked_nodes.add(current)
-    
+                '''
 
         elif self.state == "PICKUP":
 

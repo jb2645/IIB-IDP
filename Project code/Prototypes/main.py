@@ -8,6 +8,7 @@ import time
 from utime import sleep
 
 
+
 running = False
 reboot_flag = False  # ← New flag
 last_press_time = 0
@@ -25,7 +26,7 @@ def button_pressed(pin):
         
         # Check for double press
         if time_since_last < DOUBLE_PRESS_MS:
-            reboot_flag = True  # ← Set flag instead of resetting here
+             reboot_flag = True  # ← Set flag instead of resetting here
         
         else:
             # Single press - toggle start/stop
@@ -45,10 +46,12 @@ button_pin = 22
 button = Pin(button_pin, Pin.IN, Pin.PULL_DOWN)
 button.irq(trigger=Pin.IRQ_RISING, handler=button_pressed)
 
-motorL = Motor(dirPin=4, PWMPin=5)
+motorL = Motor(dirPin=4, PWMPin=5)#check values later
 motorR = Motor(dirPin=7, PWMPin=6)
 sensors = Optocoupler(12, 21, 14, 20)
-Robot = Rover(motorL, motorR, sensors)
+verticalservo = Servo(13)
+horizontalservo = Servo(15)
+Robot = Rover(motorL, motorR, sensors, horizontalservo, verticalservo)
 follower = LineFollow(Robot, sensors)
 
 
@@ -58,7 +61,7 @@ if __name__ == "__main__":
     bays = [1,2,6,7]
     pos = Position(grid, end_nodes)
     
-    path = Path_LFT(Robot, sensors, pos, follower)
+    path = Path(Robot, sensors, pos, follower)
     
     # Main outer loop
     while True:
