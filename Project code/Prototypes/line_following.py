@@ -122,6 +122,7 @@ class Path:
         #position counters
         self.turn_count = 0
         self.start_nodes = 0
+        self.dropoff_turn_count
         
         #junction error avoidance
         self.junction = False
@@ -129,13 +130,14 @@ class Path:
         self.junction_debounce = 300
         
         #saved position
+        self.current_row = 0
         self.saved_position = None
         self.saved_state = None
         self.saved_pos_state = None
         self.saved_turn_count = 0
         
         #block and delivery targets
-        self.block_colour = None
+        self.colour = None
         self.delivery_target = None
         
     def save_position(self):
@@ -330,7 +332,7 @@ class Path:
                             self.drive.drive(60,60)
                     
                     elif self.turn_count == 14:
-                        self.state = "RETURNING"
+                        self.state = "BEDTIME"
                         
 
                     
@@ -338,7 +340,7 @@ class Path:
                 else:
                     self.follower.adjust()
                 '''    
-                if self.pos.row in [1,2,6,7]:
+                if self.pos.row in [1,3,6,7]:
                     current = (self.pos.row,self.pos.node)
                     if current not in self.checked_nodes:
                         self.distance = self.drive.getDistance("F")
@@ -370,6 +372,8 @@ class Path:
                 
             elif junction_triggered:
                 self.state = "DROPOFF"
+                self.current_row = self.pos.row
+                self.colour = self.drive.DetermineColour()
             else: 
                 self.follower.adjust()
                 
@@ -379,33 +383,243 @@ class Path:
                 sleep(0.3)
                 self.drive.putdown()
                 self.LeftUTurn()
+                self.pos.U_Turn()
                 self.drive.drive(70,70)
                 sleep(0.5)
+                self.state = "RETURNING"
             else:
                 self.adjust()
                     
                     
         elif self.state == "DROPOFF":
-            current_row = self.pos.row
-            colour = self.drive.DetermineColour()
+            if self.current_row == 1:
+                if self.dropoff_turn_count == 0:
+                    self.drive.turn_left()
+                    self.pos.U_Turn
+                    self.dropoff_turn_count +=1
+                    
+                else:
+                    if juction_triggered:
+                        nodestate = self.pos.on_node
+                        if nodestate == "TURN" and self.colour == "Blue":
+                            self.state = "PUTDOWN"
+                            self.dropoff_turn_count =0
+                            
+                        elif nodestate == "TURN" and self.dropoff_turn_count == 1:
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_left()
+                            self.pos.turn_end(1)
+                            self.dropoff_turn_count+=1
+                        
+                        elif self.dropoff_turn_count == 2:
+                            if self.pos.node == 1 and self.colour == "Green":
+                                self.drive.drive_onto_junction()
+                                self.drive.turn_right()
+                                self.pos.turn_end(0)
+                                self.state = "PUTDOWN"
+                                self.dropoff_turn_count=0
+                            
+                            elif self.pos.node == 3 and self.colour == "Yellow":
+                                self.drive.drive_onto_junction()
+                                self.drive.turn_right()
+                                self.pos.turn_end(0)
+                                self.state = "PUTDOWN"
+                                self.dropoff_turn_count=0
+                                
+                            elif self.pos.node == 4 and self.colour == "Red":
+                                self.drive.drive_onto_junction()
+                                self.drive.turn_right()
+                                self.pos.turn_end(0)
+                                self.state = "PUTDOWN"
+                                self.dropoff_turn_count=0
+                
+                    else:
+                        self.follower.adjust()
+                
+                    
+            elif self.current_row == 3:
+                if self.dropoff_turn_count == 0:
+                    self.drive.turn_right()
+                    self.dropoff_turn_count +=1
+                    
+                else:
+                    if juction_triggered:
+                        nodestate = self.pos.on_node
+                        if nodestate == "TURN" and self.colour == "Red":
+                            self.state = "PUTDOWN"
+                            self.dropoff_turn_count =0
+                            
+                        elif nodestate == "TURN" and self.dropoff_turn_count == 1:
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_right()
+                            self.pos.turn_end(0)
+                            self.dropoff_turn_count+=1
+                        elif self.dropoff_turn_count == 2:
+                            if self.pos.node == 1 and self.colour == "Green":
+                                self.drive.drive_onto_junction()
+                                self.drive.turn_left()
+                                self.pos.turn_end(1)
+                                self.state = "PUTDOWN"
+                                self.dropoff_turn_count=0
+                            
+                            elif self.pos.node == 3 and self.colour == "Yellow":
+                                self.drive.drive_onto_junction()
+                                self.drive.turn_left()
+                                self.pos.turn_end(1)
+                                self.state = "PUTDOWN"
+                                self.dropoff_turn_count=0
+                                
+                            elif self.pos.node == 4 and self.colour == "Red":
+                                self.drive.drive_onto_junction()
+                                self.drive.turn_left()
+                                self.pos.turn_end(1)
+                                self.state = "PUTDOWN"
+                                self.dropoff_turn_count=0
+                    else:
+                        self.follower.adjust()
+                
+                    
+            elif self.current_row == 6:
+                if self.dropoff_turn_count == 0:
+                    self.drive.turn_right()
+                    self.pos.U_Turn
+                    self.dropoff_turn_count +=1
+                    
+                else:
+                    if juction_triggered:
+                        nodestate = self.pos.on_node
+                            
+                        if nodestate == "TURN" and self.dropoff_turn_count == 1:
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_left()
+                            self.pos.turn_end(1)
+                            self.dropoff_turn_count+=1
+                        
+                        elif nodestate == "NODE" and self.dropoff_turn_count ==2:
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_left()
+                            self.pos.turn_end(1)
+                            self.dropoff_turn_count+=1
+                        
+                        elif nodestate == "TURN" and self.dropoff_turn_count < 4:
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_right()
+                            self.pos.turn_end(0)
+                            self.dropoff_turn_count+=1
+                            
+                        elif nodestate == "TURN" and self.dropoff_turn_count == 4 and self.colour== "Red":
+                            self.state == "PUTDOWN"
+                            self.dropoff_turn_count == 0
+                            
+                        elif nodestate == "TURN" and self.dropoff_turn_count == 4:
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_right()
+                            self.pos.turn_end(0)
+                            self.dropoff_turn_count+=1
+                            
+                        
+                        elif self.dropoff_turn_count == 5:
+                            if self.pos.node == 0 and self.colour == "Blue":
+                                self.drive.drive_onto_junction()
+                                self.drive.turn_right()
+                                self.pos.turn_end(0)
+                                self.state = "PUTDOWN"
+                                self.dropoff_turn_count=0
+                            elif self.pos.node == 1 and self.colour == "Green":
+                                self.drive.drive_onto_junction()
+                                self.drive.turn_right()
+                                self.pos.turn_end(0)
+                                self.state = "PUTDOWN"
+                                self.dropoff_turn_count=0
+                            
+                            elif self.pos.node == 3 and self.colour == "Yellow":
+                                self.drive.drive_onto_junction()
+                                self.drive.turn_right()
+                                self.pos.turn_end(0)
+                                self.state = "PUTDOWN"
+                                self.dropoff_turn_count=0
+                
+                    else:
+                        self.follower.adjust()
+                    
+            elif self.current_row == 7:
+                if self.dropoff_turn_count == 0:
+                    self.drive.turn_left()
+                    self.pos.U_Turn
+                    self.dropoff_turn_count +=1
+                    
+                else:
+                    if juction_triggered:
+                        nodestate = self.pos.on_node
+                            
+                        if nodestate == "TURN" and self.dropoff_turn_count == 1:
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_right()
+                            self.pos.turn_end(0)
+                            self.dropoff_turn_count+=1
+                        
+                        elif nodestate == "NODE" and self.dropoff_turn_count ==2:
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_right()
+                            self.pos.turn_end(0)
+                            self.dropoff_turn_count+=1
+                        
+                        elif nodestate == "TURN" and self.dropoff_turn_count < 4:
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_right()
+                            self.pos.turn_end(0)
+                            self.dropoff_turn_count+=1
+                            
+                        elif nodestate == "TURN" and self.dropoff_turn_count == 4 and self.colour== "Red":
+                            self.state == "PUTDOWN"
+                            self.dropoff_turn_count == 0
+                            
+                        elif nodestate == "TURN" and self.dropoff_turn_count == 4:
+                            self.drive.drive_onto_junction()
+                            self.drive.turn_right()
+                            self.pos.turn_end(0)
+                            self.dropoff_turn_count+=1
+                            
+                        
+                        elif self.dropoff_turn_count == 5:
+                            if self.pos.node == 0 and self.colour == "Blue":
+                                self.drive.drive_onto_junction()
+                                self.drive.turn_right()
+                                self.pos.turn_end(0)
+                                self.state = "PUTDOWN"
+                                self.dropoff_turn_count=0
+                            elif self.pos.node == 1 and self.colour == "Green":
+                                self.drive.drive_onto_junction()
+                                self.drive.turn_right()
+                                self.pos.turn_end(0)
+                                self.state = "PUTDOWN"
+                                self.dropoff_turn_count=0
+                            
+                            elif self.pos.node == 3 and self.colour == "Yellow":
+                                self.drive.drive_onto_junction()
+                                self.drive.turn_right()
+                                self.pos.turn_end(0)
+                                self.state = "PUTDOWN"
+                                self.dropoff_turn_count=0
+                
+                    else:
+                        self.follower.adjust()
             
-            if current_row == 1:
-                self.drive.turn_left()
-                self.pos.U_Turn
-                
-            elif current_row == 3:
-                self.drive.turn_right()
-                
-            elif current_row == 6:
-                self.drive.turn_right()
-                self.pos.U_Turn
-                
-            elif current_row == 7:
-                self.drive.turn_left()
-                self.pos.U_Turn
 
-
+                
         elif self.state == "RETURNING":
+            if self.colour == "Blue":
+                self.drive.drive(60,60)
+                sleep(0.3)
+                self.turn_count = 1
+                self.pos.node = 0
+            else:
+                self.drive.turn_left()
+                self.pos.turn_end(1)
+                self.turn_count = 0
+            self.state = "SENSING"
+
+        elif self.state == "BEDTIME":
             if event == "JUNCTION" and self.junction == False:
                 self.pos.on_node()
                 if self.pos.node == 2:
