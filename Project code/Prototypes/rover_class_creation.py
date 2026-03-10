@@ -204,11 +204,11 @@ class Rover:
     def getDistance(self, direction):
         VL53 = False
         # Determine which direction of sensor is being activated
-        if direction == "F":
+        if direction == "R":
             i2c_bus = I2C(id=0, sda=Pin(16), scl=Pin(17)) # Left hand Sensor attached to GPIO 8, 9
             VL53 = True
             
-        if direction == "R":
+        if direction == "F":
             i2c_bus = I2C(id=0, sda=Pin(18), scl=Pin(19)) # Right hand Sensor attached to GPIO 
             VL53 = True
             
@@ -220,7 +220,8 @@ class Rover:
             vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)      #sets pulse period/range of sensor
             vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
 
-            vl53l0.start()    
+            vl53l0.start()
+            sleep(0.1)
             distance = vl53l0.read()           #if inaccurate in testing then take multiple data points and average. 
             
             # Stop device

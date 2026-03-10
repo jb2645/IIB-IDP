@@ -65,10 +65,13 @@ if __name__ == "__main__":
 
         follower.adjust()
         event = sensors.junction_detection()
-        print(event)
+        #print(event)
         if event == "JUNCTION":
-            Robot.LeftUTurn()
+            #Robot.LeftUTurn()
             #running = False
+            print(Robot.getDistance("F"))
+            
+            
 
 
         time.sleep(0.01)
