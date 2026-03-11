@@ -1,19 +1,25 @@
 from machine import Pin, PWM
 from utime import sleep
-import time
 
 from general_component_classes import *
 from rover_class_creation import * 
 
 
+DEBUG = False
+def debug_print(*args):
+    if DEBUG:
+        print(*args)
+
 class LineFollow: #Handles line following with the inner sensors
-    def __init__(self, drive, sensors, base_speed=75, correction=20):
+    def __init__(self, drive, sensors, base_speed=70, correction=15):
 
         self.drive = drive
         self.sensors = sensors
         self.base_speed = base_speed
         self.correction = correction
         
+        self.speed_left_correct = base_speed + correction
+        self.speed_right_correct = base_speed - correction
     def adjust(self):
         left, right = self.sensors.read_line()
         
@@ -23,13 +29,13 @@ class LineFollow: #Handles line following with the inner sensors
 
         elif left == 0 and right == 1:
             # Drifting right - correct left
-            self.drive.drive(self.base_speed + self.correction,
-                             self.base_speed - self.correction)
+            self.drive.drive(self.speed_left_correct,
+                             self.speed_right_correct)
 
         elif left == 1 and right == 0:
             # Drifting left - correct right
-            self.drive.drive(self.base_speed - self.correction,
-                             self.base_speed + self.correction)
+            self.drive.drive(self.speed_right_correct,
+                             self.speed_left_correct)
         
         else:
             # Both off line - drive straight (recovery)
@@ -49,24 +55,24 @@ class Position: #Tracks rover's position on grid
         self.state = event
         
     def find_row(self):#Determines what row rover is on following turn
-        if self.heading == 0 or self.heading == 1:
+        if self.heading <2:
             return self.grid[self.row][0]
         else:
             return self.grid[self.row][1]
      
     def on_node(self):#updates node count then checks if its a turn
-        if self.heading == 0 or self.heading == 1:  # N or E → counting up
+        if self.heading <2:  # N or E → counting up
             self.node += 1
         else:  # S or W → counting down
             self.node -= 1
         
-        print(f"Arrived at node {self.node}, row {self.row}")
+        debug_print(f"Arrived at node {self.node}, row {self.row}")
         
         # Check if it's an end node (need to turn)
         end = self.enode[self.row]
         
         if self.node in end:
-            print(f"END NODE - TURN!")
+            debug_print(f"END NODE - TURN!")
             return "TURN"
         else:
             return "NODE"
@@ -77,23 +83,23 @@ class Position: #Tracks rover's position on grid
         
         # Update heading
         if turn == 0:  # right
-            self.heading = (self.heading + 1) % 4
+            self.heading = (self.heading + 1) & 3
         elif turn == 1:  # left
-            self.heading = (self.heading - 1) % 4
+            self.heading = (self.heading - 1) & 3
         
         # Reset node to starting position for new row
         new_end_row = self.enode[self.row]
             
-        if self.heading == 0 or self.heading == 1:  # N or E
+        if self.heading <2:  # N or E
             self.node = new_end_row[1]  # Start from low end
         else:  # S or W
             self.node = new_end_row[0]  # Start from high end
             
-        print(f"After turn: row={self.row}, heading={self.heading}, node={self.node}")
+        debug_print(f"After turn: row={self.row}, heading={self.heading}, node={self.node}")
         
     def U_turn(self):
         """Reverse heading direction (180 degree turn)"""
-        self.heading = (self.heading + 2) % 4
+        self.heading = (self.heading + 2) & 3
 
 
 class Path: #Main state machine controlling behaviour
@@ -114,9 +120,7 @@ class Path: #Main state machine controlling behaviour
         self.start_nodes = 0            # Nodes passed leaving start
         self.dropoff_turn_count = 0     # Turns made during dropoff navigation
         
-        self.last_junction_state = False
-        self.junction_confirm_count = 0
-        self.CONFIRM_THRESHOLD = 3  # Require consecutive readings
+        self.junction = False
         
         self.current_row = 0
         self.saved_pos_state = None
@@ -127,27 +131,9 @@ class Path: #Main state machine controlling behaviour
         """Save current pos_state for returning after delivery"""
         self.saved_pos_state = self.pos_state
     
-    def debounce_junction(self, event):
-        """
-        Simple state-change detection with confirmation.
-        Only triggers once per junction encounter.
-        """
-        is_junction = (event == "JUNCTION")
-        
-        if is_junction:
-            self.junction_confirm_count += 1
-        else:
-            self.junction_confirm_count = 0
-            self.last_junction_state = False
-            return False
-        
-        # Require multiple consecutive readings AND not already triggered
-        if self.junction_confirm_count >= self.CONFIRM_THRESHOLD and not self.last_junction_state:
-            self.last_junction_state = True
-            self.junction_confirm_count = 0
-            return True
-        
-        return False
+
+
+
     
     
     def update(self):
@@ -166,11 +152,12 @@ class Path: #Main state machine controlling behaviour
         """
         
         event = self.sensors.junction_detection()
-        junction_triggered = self.debounce_junction(event)
+        is_new_junction = (event == "JUNCTION") and (not self.junction)
+        
 
         if self.state == "LEAVING_START": #leaves starting area
-            if junction_triggered:
-                print(self.start_nodes)
+            if is_new_junction:
+                debug_print(self.start_nodes)
                 self.start_nodes += 1
                 
                 if self.start_nodes == 2:
@@ -186,7 +173,7 @@ class Path: #Main state machine controlling behaviour
         elif self.state == "SENSING": #main path 
             
             if self.pos_state == "OUTER_LOOP": #outer perimeter
-                if junction_triggered:
+                if is_new_junction:
                     sleep(0.1)
                     nodestate = self.pos.on_node()
                     
@@ -204,17 +191,18 @@ class Path: #Main state machine controlling behaviour
                             
                     elif nodestate == "NODE":
                         # At intermediate node - drive through
-                        self.drive.drive(45, 45)
+                        self.drive.drive(60,60)
                 else:
                     self.follower.adjust()
             
 
             elif self.pos_state == "RAMP": #navigates ramp and upper bays
-                if junction_triggered:
+                if is_new_junction:
                     nodestate = self.pos.on_node()
+                    tc = self.turn_count
                    
                     # Phase 1: Go to bottom of ramp (turns 0-1)
-                    if self.turn_count < 2:
+                    if tc < 2:
                         if nodestate == "TURN":
                             self.turn_count += 1
                             self.drive.drive_onto_junction()
@@ -225,7 +213,7 @@ class Path: #Main state machine controlling behaviour
                             self.drive.drive(60, 60)
                     
                     # Phase 2: Turn onto ramp (turn 2)
-                    elif self.turn_count == 2:
+                    elif tc == 2:
                         if nodestate == "NODE" and self.pos.node == 1:
                             self.turn_count += 1
                             self.drive.drive_onto_junction()
@@ -234,11 +222,11 @@ class Path: #Main state machine controlling behaviour
                             self.pos.row = 4
                             self.pos.heading = 2
                             self.pos.node = 1
-                            print(f"After turn: row={self.pos.row}, heading={self.pos.heading}, node={self.pos.node}")
+                            debug_print(f"After turn: row={self.pos.row}, heading={self.pos.heading}, node={self.pos.node}")
                         else:
                             self.drive.drive(60, 60)
                     
-                    elif self.turn_count == 3:
+                    elif tc == 3:
                          if nodestate == "TURN":
                             self.turn_count += 1
                             self.drive.drive_onto_junction()
@@ -247,12 +235,12 @@ class Path: #Main state machine controlling behaviour
                             self.pos.row = 5
                             self.pos.heading = 3
                             self.pos.node = 1
-                            print(f"After turn: row={self.pos.row}, heading={self.pos.heading}, node={self.pos.node}")
+                            debug_print(f"After turn: row={self.pos.row}, heading={self.pos.heading}, node={self.pos.node}")
                          else:
                             self.drive.drive(60, 60)
                     
                     # Phase 3: Go to first pickup bay (turns 3-4)
-                    elif self.turn_count == 4:
+                    elif tc == 4:
                         if nodestate == "TURN":
                             self.turn_count += 1
                             self.drive.drive_onto_junction()
@@ -262,14 +250,18 @@ class Path: #Main state machine controlling behaviour
                             self.drive.drive(45, 45)
                             
                     # Phase 4: Leave first bay - U-turn then left (turns 5-6)
-                    elif self.turn_count > 4 and self.turn_count < 7:
-                        if nodestate == "TURN" and self.turn_count == 5:
+                    
+                    elif tc == 5:
+                        if nodestate == "TURN":
                             # U-turn at end of bay
                             self.turn_count += 1
                             self.pos.U_turn()
                             self.drive.LeftUTurn()
                             self.pos.node -= 1
-                        elif nodestate == "TURN" and self.turn_count == 6:
+                        else:
+                            self.drive.drive(60,60)
+                    elif tc == 6:
+                        if nodestate == "TURN":
                             # Turn left to exit
                             self.turn_count += 1
                             self.drive.drive_onto_junction()
@@ -279,7 +271,7 @@ class Path: #Main state machine controlling behaviour
                             self.drive.drive(60, 60)
                             
                     # Phase 5: Go to second bay - straight then left (turn 7)
-                    elif self.turn_count == 7:
+                    elif tc == 7:
                         if nodestate == "TURN":
                             self.turn_count += 1
                             self.drive.drive_onto_junction()
@@ -289,14 +281,18 @@ class Path: #Main state machine controlling behaviour
                             self.drive.drive(60, 60)
                     
                     # Phase 6: Leave second bay - U-turn then right (turns 8-9)
-                    elif self.turn_count > 7 and self.turn_count < 10:
-                        if nodestate == "TURN" and self.turn_count == 8:
+                    elif tc == 8:
+                        if nodestate == "TURN":
                             # U-turn at end of bay
                             self.turn_count += 1
                             self.pos.U_turn()
                             self.drive.RightUTurn()
                             self.pos.node -= 1
-                        elif nodestate == "TURN" and self.turn_count == 9:
+                        else:
+                            self.drive.drive(60,60)
+                            
+                    elif tc == 9:
+                        if nodestate == "TURN":
                             # Turn right to exit
                             self.turn_count += 1
                             self.drive.drive_onto_junction()
@@ -306,14 +302,14 @@ class Path: #Main state machine controlling behaviour
                             self.drive.drive(60, 60)
                     
                     # Phase 7: Leave ramp and return home (turns 10-13)
-                    elif self.turn_count == 10:
+                    elif tc == 10:
                         # First turn off ramp
                         self.turn_count += 1
                         self.drive.drive_onto_junction()
                         self.drive.turnright()
                         self.pos.turn_end(0)
                         
-                    elif self.turn_count > 10 and self.turn_count < 14:
+                    elif tc < 14:
                         if nodestate == "TURN":
                             self.turn_count += 1
                             self.drive.drive_onto_junction()
@@ -323,10 +319,12 @@ class Path: #Main state machine controlling behaviour
                             self.drive.drive(60, 60)
                     
                     # Phase 8: Route complete - go to bed
-                    elif self.turn_count == 14:
+                    elif tc == 14:
                         self.state = "BEDTIME"
                 else:
                     self.follower.adjust()
+
+        
             
             
             '''if self.pos.row in [1, 3, 6, 7]: #block detection checks
@@ -367,7 +365,7 @@ class Path: #Main state machine controlling behaviour
                 # Block picked up - turn around
                 self.drive.RightUTurn()
                 
-            elif junction_triggered:
+            elif is_new_junction:
                 if self.noblock == True:
                     # No block was found - return to route
                     self.drive_onto_junction()
@@ -386,7 +384,7 @@ class Path: #Main state machine controlling behaviour
                 self.follower.adjust()
         
         elif self.state == "PUTDOWN": #place block
-            if junction_triggered:
+            if is_new_junction:
                 # Drive forward slightly then put down block
                 self.drive.drive(70, 70)
                 sleep(0.3)
@@ -405,15 +403,15 @@ class Path: #Main state machine controlling behaviour
                 self.follower.adjust()
         
         elif self.state == "DROPOFF": #navigates to dropoff bays from various positions
-            
-            if self.current_row == 1: 
+            cr = self.current_row
+            if cr == 1: 
                 if self.dropoff_turn_count == 0:
                     # Initial turn to leave pickup area
                     self.drive.turnleft()
                     self.pos.U_turn()
                     self.dropoff_turn_count += 1
                 else:
-                    if junction_triggered:
+                    if is_new_junction:
                         nodestate = self.pos.on_node()
                         
                         # Blue bay - first turn
@@ -453,12 +451,12 @@ class Path: #Main state machine controlling behaviour
                     else:
                         self.follower.adjust()
             
-            elif self.current_row == 3:
+            elif cr == 3:
                 if self.dropoff_turn_count == 0:
                     self.drive.turnright()
                     self.dropoff_turn_count += 1
                 else:
-                    if junction_triggered:
+                    if is_new_junction:
                         nodestate = self.pos.on_node()
                         
                         # Red bay - first turn
@@ -498,13 +496,13 @@ class Path: #Main state machine controlling behaviour
                     else:
                         self.follower.adjust()
             
-            elif self.current_row == 6:
+            elif cr == 6:
                 if self.dropoff_turn_count == 0:
                     self.drive.turnright()
                     self.pos.U_turn()
                     self.dropoff_turn_count += 1
                 else:
-                    if junction_triggered:
+                    if is_new_junction:
                         nodestate = self.pos.on_node()
                         
                         # First turn - go left
@@ -566,13 +564,13 @@ class Path: #Main state machine controlling behaviour
                         self.follower.adjust()
             
             
-            elif self.current_row == 7:
+            elif cr == 7:
                 if self.dropoff_turn_count == 0:
                     self.drive.turnleft()
                     self.pos.U_turn()
                     self.dropoff_turn_count += 1
                 else:
-                    if junction_triggered:
+                    if is_new_junction:
                         nodestate = self.pos.on_node()
                         
                         # First turn - go right
@@ -652,7 +650,7 @@ class Path: #Main state machine controlling behaviour
 
 
         elif self.state == "BEDTIME": #returns to starting position following completion
-            if junction_triggered:
+            if is_new_junction:
                 self.pos.on_node()
                 if self.pos.node == 2:
                     # At home position - turn in
@@ -666,4 +664,6 @@ class Path: #Main state machine controlling behaviour
             self.drive.drive(45, 45)
             sleep(0.3)
             self.drive.stop()
-            print("FINISHED")
+            debug_print("FINISHED")
+            
+        self.junction = (event == "JUNCTION")
