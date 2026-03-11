@@ -46,10 +46,10 @@ class Rover:
         
     def getDistance(self, direction):
         # Determine which direction of sensor is being activated
-        if direction == "R":
-            distance = self.rightvl53l0.read()
+        #if direction == "R":
+            #distance = self.rightvl53l0.read()
             
-        elif direction == "F":
+        if direction == "R":
             distance = self.frontvl53l0.read()
             
         return distance
