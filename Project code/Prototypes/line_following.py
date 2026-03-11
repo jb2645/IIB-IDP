@@ -218,7 +218,7 @@ class Path: #Main state machine controlling behaviour
                     
                     # Phase 2: Turn onto ramp (turn 2)
                     elif self.turn_count == 2:
-                        if nodestate == "NODE":
+                        if nodestate == "NODE" and self.pos.node == 1:
                             self.turn_count += 1
                             self.drive.drive_onto_junction()
                             self.drive.turnright()
