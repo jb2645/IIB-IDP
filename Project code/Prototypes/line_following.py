@@ -355,17 +355,23 @@ class Path: #Main state machine controlling behaviour
             if blockdistance > 300 and self.drive.GetBlockStatus() == False and self.noblock == False:
                 # No block found - turn around
                 self.noblock = True
-                self.follower.adjust()
-                sleep(0.1)
-                self.follower.adjust()
-                sleep(0.1)
-                self.drive.RightUTurn()
-
-            elif blockdistance < 10:
+                if self.noblock == True:
+                    # No block was found - return to route
+                    self.drive.drive_onto_junction()
+                    if self.pos.row in [1, 7]:
+                        self.drive.reverseright()
+                    else:
+                        self.drive.reverseleft()
+                    self.state = "SENSING"
+                    self.noblock = False
+                print(1)
+                
+            if blockdistance < 10:
                 # Close enough to pickup
                 self.drive.stop()
                 self.drive.pickup()
                 self.colour = self.drive.DetermineColour()
+                
 
             elif self.drive.GetBlockStatus() == True:
                 # Block picked up - turn around
@@ -373,15 +379,9 @@ class Path: #Main state machine controlling behaviour
                 
             elif is_new_junction:
                 sleep(0.1)
-                if self.noblock == True:
-                    # No block was found - return to route
-                    self.drive.drive_onto_junction()
-                    if self.pos.row in [1, 7]:
-                        self.drive.turnright()
-                    else:
-                        self.drive.turnleft()
-                    self.state = "SENSING"
-                    self.noblock = False
+                print(2)
+                if False:
+                    pass
                 else:
                     # Block picked up - go to dropoff
                     self.state = "DROPOFF"
@@ -389,6 +389,7 @@ class Path: #Main state machine controlling behaviour
                     self.colour = self.drive.DetermineColour()
             else: 
                 self.follower.adjust()
+                print(3)
         
         elif self.state == "PUTDOWN": #place block
             if is_new_junction:
