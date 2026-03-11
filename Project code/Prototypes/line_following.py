@@ -107,6 +107,9 @@ class Path: #Main state machine controlling behaviour
         self.state = "LEAVING_START"    # Main state machine state
         self.pos_state = "START"        # Position state 
         self.checked_nodes = set()      # Nodes already checked for blocks
+
+        self.checked_nodes.add([1, 0])
+
         self.turn_count = 0             # Turns made in current phase
         self.start_nodes = 0            # Nodes passed leaving start
         self.dropoff_turn_count = 0     # Turns made during dropoff navigation
@@ -337,6 +340,7 @@ class Path: #Main state machine controlling behaviour
                     if self.distance < 270:
                         # Block detected - switch to pickup mode
                         self.state = "PICKUP"
+                        self.drive_onto_junction()
                         self.drive.turnright()
                         self.save_position()
                     
@@ -366,6 +370,7 @@ class Path: #Main state machine controlling behaviour
             elif junction_triggered:
                 if self.noblock == True:
                     # No block was found - return to route
+                    self.drive_onto_junction()
                     if self.pos.row in [1, 7]:
                         self.drive.turnright()
                     else:
