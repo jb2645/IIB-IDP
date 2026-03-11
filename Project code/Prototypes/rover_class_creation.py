@@ -106,7 +106,13 @@ class Rover:
         
     def pickup(self):
         self.isholdingblock = True
-        #self.verticalservo.
+        self.horizontalservo.setrotation(110)
+        self.verticalservo.setrotation(5)
+        sleep(0.1)
+        self.horizontalservo.setrotation(80)
+        self.drive(-45, -45)
+        sleep(0.1)
+        self.verticalservo.setrotation(90)
         
         
     def putdown(self):

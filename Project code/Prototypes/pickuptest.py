@@ -66,6 +66,8 @@ if __name__ == "__main__":
         sleep(1)
         Robot.deployGrabber()
         sleep(1)
+        Robot.pickup()
+        sleep(1)
             
 
 
