@@ -67,9 +67,9 @@ if __name__ == "__main__":
         event = sensors.junction_detection()
         #print(event)
         if event == "JUNCTION":
-            #Robot.LeftUTurn()
-            #running = False
-            print(Robot.getDistance("F"))
+            Robot.LeftUTurn()
+            running = False
+            print(Robot.getDistance("R"))
             
             
 

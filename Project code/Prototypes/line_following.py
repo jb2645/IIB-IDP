@@ -355,6 +355,10 @@ class Path: #Main state machine controlling behaviour
             if blockdistance > 300 and self.drive.GetBlockStatus() == False and self.noblock == False:
                 # No block found - turn around
                 self.noblock = True
+                self.follower.adjust()
+                sleep(0.1)
+                self.follower.adjust()
+                sleep(0.1)
                 self.drive.RightUTurn()
 
             elif blockdistance < 10:
