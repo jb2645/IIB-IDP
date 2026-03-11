@@ -328,7 +328,7 @@ class Path: #Main state machine controlling behaviour
         
             
             
-            '''if self.pos.row in [1, 3, 6, 7]: #block detection checks
+            if self.pos.row in [1, 3, 6, 7]: #block detection checks
                 current = (self.pos.row, self.pos.node)
                 #[[1, 0], []]
                 if current not in self.checked_nodes:
@@ -344,7 +344,7 @@ class Path: #Main state machine controlling behaviour
                         self.save_position()
                     
                     # Mark this node as checked
-                    self.checked_nodes.add(current)'''
+                    self.checked_nodes.add(current)
 
 
         elif self.state == "PICKUP":
