@@ -3,15 +3,15 @@ from utime import sleep
 
 from general_component_classes import *
 from rover_class_creation import * 
+import time
 
-
-DEBUG = False
+DEBUG = True
 def debug_print(*args):
     if DEBUG:
         print(*args)
 
 class LineFollow: #Handles line following with the inner sensors
-    def __init__(self, drive, sensors, base_speed=70, correction=15):
+    def __init__(self, drive, sensors, base_speed=80, correction=20):
 
         self.drive = drive
         self.sensors = sensors
@@ -127,6 +127,9 @@ class Path: #Main state machine controlling behaviour
         
         self.noblock = False
         self.colour = None              # Detected block colour
+
+        self.timer = 0 #dummy, remove after first test
+        self.timerflag = False
         
     def save_position(self):
         """Save current pos_state for returning after delivery"""
@@ -347,7 +350,7 @@ class Path: #Main state machine controlling behaviour
         
             
             
-            '''if self.pos.row in [1, 3, 6, 7]: #block detection checks
+            if self.pos.row in [1, 3, 6, 7]: #block detection checks
                 current = (self.pos.row, self.pos.node)
                 #[[1, 0], []]
                 if current not in self.checked_nodes:
@@ -355,7 +358,7 @@ class Path: #Main state machine controlling behaviour
                     self.distance = self.drive.getDistance("R")
                     print(self.distance)
                     
-                    if self.distance < 270:
+                    if self.distance < 260:
                         # Block detected - switch to pickup mode
                         self.state = "PICKUP"
                         self.drive.drive_onto_junction()
@@ -363,13 +366,21 @@ class Path: #Main state machine controlling behaviour
                         self.save_position()
                     
                     # Mark this node as checked
-                    self.checked_nodes.add(current)'''
+                    self.checked_nodes.add(current)
 
 
         elif self.state == "PICKUP":
-            # TODO: Replace with actual distance sensor reading
-            blockdistance = 301  # Placeholder
+            if self.timerflag == False:
+                self.timer = time.ticks_ms()
+                self.timerflag = True
+                debug_print(9)
+                
+            time_since_last = time.ticks_diff(time.ticks_ms(), self.timer)   ##delete after test
 
+            # TODO: Replace with actual distance sensor reading
+            blockdistance = 290  # Placeholder
+            debug_print(6)
+            
             if blockdistance > 300 and self.drive.GetBlockStatus() == False and self.noblock == False:
                 # No block found - turn around
                 self.noblock = True
@@ -383,17 +394,28 @@ class Path: #Main state machine controlling behaviour
                     self.state = "SENSING"
                     self.noblock = False
                 debug_print(1)
-                
+            
+            '''  
             if blockdistance < 10:
                 # Close enough to pickup
                 self.drive.stop()
                 self.drive.pickup()
                 self.colour = self.drive.DetermineColour()
+            ''' 
+
+            if time_since_last > 500 and self.noblock == False:
+                self.drive.stop()
+                sleep(1)
+                self.drive.RightUTurn()
+                debug_print("turn")
+                self.noblock = True
+                debug_print(5)
+                
                 
 
-            elif self.drive.GetBlockStatus() == True:
-                # Block picked up - turn around
-                self.drive.RightUTurn()
+            #elif self.drive.GetBlockStatus() == True:
+            #    # Block picked up - turn around
+            #    self.drive.RightUTurn()
                 
             elif is_new_junction:
                 sleep(0.1)
@@ -404,10 +426,17 @@ class Path: #Main state machine controlling behaviour
                     # Block picked up - go to dropoff
                     self.state = "DROPOFF"
                     self.current_row = self.pos.row
-                    self.colour = self.drive.DetermineColour()
+                    #self.colour = self.drive.DetermineColour()
+                    self.colour = "Green"
+
+                    self.timerflag = False   #delete later
+                    self.noblock = True
+            
             else: 
                 self.follower.adjust()
                 debug_print(3)
+
+                
         
         elif self.state == "PUTDOWN": #place block
             if is_new_junction:
