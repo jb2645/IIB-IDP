@@ -259,7 +259,8 @@ class Path: #Main state machine controlling behaviour
                             self.turn_count += 1
                             self.pos.U_turn()
                             self.drive.LeftUTurn()
-                            self.pos.node -= 1
+                            sleep(0.1)
+                            #self.pos.node = 6
                         else:
                             self.drive.drive(60,60)
                     elif tc == 6:
@@ -289,7 +290,8 @@ class Path: #Main state machine controlling behaviour
                             self.turn_count += 1
                             self.pos.U_turn()
                             self.drive.RightUTurn()
-                            self.pos.node -= 1
+                            sleep(0.1)
+                            #self.pos.node = 6 
                         else:
                             self.drive.drive(60,60)
                             
@@ -305,12 +307,28 @@ class Path: #Main state machine controlling behaviour
                     
                     # Phase 7: Leave ramp and return home (turns 10-13)
                     elif tc == 10:
-                        # First turn off ramp
-                        self.turn_count += 1
-                        self.drive.drive_onto_junction()
-                        self.drive.turnright()
-                        self.pos.turn_end(0)
+                        if nodestate == "NODE" and self.pos.node == 1:
+                            # First turn off ramp
+                            self.turn_count += 1
+                            self.drive.drive_onto_junction()
+                            self.drive.turnright()
+                            self.pos.turn_end(0)
+                        else:
+                            self.drive.drive(60,60)
                         
+                    elif tc == 11:
+                        self.pos.row = 4
+                        self.pos.heading = 0
+                        self.pos.node = 0
+                        if nodestate == "TURN":
+                            self.turn_count += 1
+                            self.drive.drive_onto_junction()
+                            self.drive.turnright()
+                            self.pos.turn_end(0)
+                        else:
+                            self.drive.drive(60,60)
+                            
+                    
                     elif tc < 14:
                         if nodestate == "TURN":
                             self.turn_count += 1
@@ -364,7 +382,7 @@ class Path: #Main state machine controlling behaviour
                         self.drive.reverseleft()
                     self.state = "SENSING"
                     self.noblock = False
-                print(1)
+                debug_print(1)
                 
             if blockdistance < 10:
                 # Close enough to pickup
@@ -379,7 +397,7 @@ class Path: #Main state machine controlling behaviour
                 
             elif is_new_junction:
                 sleep(0.1)
-                print(2)
+                debug_print(2)
                 if False:
                     pass
                 else:
@@ -389,7 +407,7 @@ class Path: #Main state machine controlling behaviour
                     self.colour = self.drive.DetermineColour()
             else: 
                 self.follower.adjust()
-                print(3)
+                debug_print(3)
         
         elif self.state == "PUTDOWN": #place block
             if is_new_junction:
