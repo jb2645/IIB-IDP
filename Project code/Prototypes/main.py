@@ -81,7 +81,7 @@ if __name__ == "__main__":
             
             # Running - do path update
             path.update()
-            sleep(0.01)
+            sleep(0.06)
 
         sleep(0.1)
 

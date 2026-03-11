@@ -24,6 +24,37 @@ class Rover:
         self.isholdingblock = isholdingblock
         self.horizontalservo = horizontalservo
         self.verticalservo = verticalservo
+        self.frontvl53l0 = 0
+        self.rightvl53l0 = 0
+        self.VL53INIT()
+        
+        
+    def VL53INIT(self)
+        fronti2c_bus = I2C(id=0, sda=Pin(16), scl=Pin(17))    #sets I2C pins used for sensors
+        righti2c_bus = I2C(id=0, sda=Pin(18), scl=Pin(19))
+        
+        self.frontvl53l0 = VL53L0X(fronti2c_bus)
+        self.frontvl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)      #sets pulse period/range of sensor
+        self.frontvl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
+        self.frontvl53l0.start()
+        
+        self.rightvl53l0 = VL53L0X(righti2c_bus)
+        self.rightvl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)      #sets pulse period/range of sensor
+        self.rightvl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
+        self.rightvl53l0.start()
+        
+        
+    def getDistance(self, direction):
+        # Determine which direction of sensor is being activated
+        if direction == "R":
+            distance = self.rightvl53l0.read()
+            
+        elif direction == "F":
+            distance = self.frontvl53l0.read()
+            
+        return distance
+        
+        
 
         
     def SetBlockStatus(self, isholdingblock):
@@ -82,7 +113,7 @@ class Rover:
         self.isholdingblock = False
         
         
-        pass
+        
     
     
     def turnleft(self):
@@ -193,41 +224,6 @@ class Rover:
                 turned = True
                 
             #sleep(0.05)
-                
-            
-
-
-        
-        
-        
-        
-    def getDistance(self, direction):
-        VL53 = False
-        # Determine which direction of sensor is being activated
-        if direction == "R":
-            i2c_bus = I2C(id=0, sda=Pin(16), scl=Pin(17)) # Left hand Sensor attached to GPIO 8, 9
-            VL53 = True
-            
-        if direction == "F":
-            i2c_bus = I2C(id=0, sda=Pin(18), scl=Pin(19)) # Right hand Sensor attached to GPIO 
-            VL53 = True
-            
-        if VL53:
-            # print(i2c_bus.scan())  # Get the address (nb 41=0x29, 82=0x52)    - shouldnmt be neccessary
-            
-            # Setup vl53l0 object
-            vl53l0 = VL53L0X(i2c_bus)
-            vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)      #sets pulse period/range of sensor
-            vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
-
-            vl53l0.start()
-            sleep(0.1)
-            distance = vl53l0.read()           #if inaccurate in testing then take multiple data points and average. 
-            
-            # Stop device
-            vl53l0.stop()
-            
-            return distance
             
             
     def drive_onto_junction(self, duration=0.23):
