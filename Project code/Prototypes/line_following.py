@@ -111,11 +111,10 @@ class Path: #Main state machine controlling behaviour
         self.start_nodes = 0            # Nodes passed leaving start
         self.dropoff_turn_count = 0     # Turns made during dropoff navigation
         
-
-        self.junction = False
-        self.last_junction_time = 0
-        self.junction_debounce = 300    # Milliseconds
-
+        self.last_junction_state = False
+        self.junction_confirm_count = 0
+        self.CONFIRM_THRESHOLD = 3  # Require consecutive readings
+        
         self.current_row = 0
         self.saved_pos_state = None
         
@@ -125,19 +124,26 @@ class Path: #Main state machine controlling behaviour
         """Save current pos_state for returning after delivery"""
         self.saved_pos_state = self.pos_state
     
-    def debounce_junction(self, event): #prevents accidential junction readings
-
-        if event != "JUNCTION":
-            self.junction = False
+    def debounce_junction(self, event):
+        """
+        Simple state-change detection with confirmation.
+        Only triggers once per junction encounter.
+        """
+        is_junction = (event == "JUNCTION")
+        
+        if is_junction:
+            self.junction_confirm_count += 1
+        else:
+            self.junction_confirm_count = 0
+            self.last_junction_state = False
             return False
         
-        current_time = time.ticks_ms()
+        # Require multiple consecutive readings AND not already triggered
+        if self.junction_confirm_count >= self.CONFIRM_THRESHOLD and not self.last_junction_state:
+            self.last_junction_state = True
+            self.junction_confirm_count = 0
+            return True
         
-        if not self.junction:
-            if time.ticks_diff(current_time, self.last_junction_time) > self.junction_debounce:
-                self.junction = True
-                self.last_junction_time = current_time
-                return True
         return False
     
     
@@ -211,6 +217,7 @@ class Path: #Main state machine controlling behaviour
                             self.drive.drive_onto_junction()
                             self.drive.turnright()
                             self.pos.turn_end(0)
+
                         elif nodestate == "NODE":
                             self.drive.drive(60, 60)
                     
@@ -220,12 +227,29 @@ class Path: #Main state machine controlling behaviour
                             self.turn_count += 1
                             self.drive.drive_onto_junction()
                             self.drive.turnright()
-                            self.pos.turn_end(0)
+                            #self.pos.turn_end(0)
+                            self.pos.row = 4
+                            self.pos.heading = 2
+                            self.pos.node = 1
+                            print(f"After turn: row={self.pos.row}, heading={self.pos.heading}, node={self.pos.node}")
                         else:
                             self.drive.drive(60, 60)
                     
+                    elif self.turn_count == 3:
+                         if nodestate == "TURN":
+                            self.turn_count += 1
+                            self.drive.drive_onto_junction()
+                            self.drive.turnright()
+                            #self.pos.turn_end(0)
+                            self.pos.row = 5
+                            self.pos.heading = 3
+                            self.pos.node = 1
+                            print(f"After turn: row={self.pos.row}, heading={self.pos.heading}, node={self.pos.node}")
+                         else:
+                            self.drive.drive(60, 60)
+                    
                     # Phase 3: Go to first pickup bay (turns 3-4)
-                    elif self.turn_count > 2 and self.turn_count < 5:
+                    elif self.turn_count == 4:
                         if nodestate == "TURN":
                             self.turn_count += 1
                             self.drive.drive_onto_junction()
@@ -302,7 +326,7 @@ class Path: #Main state machine controlling behaviour
                     self.follower.adjust()
             
             
-            if self.pos.row in [1, 3, 6, 7]: #block detection checks
+            '''if self.pos.row in [1, 3, 6, 7]: #block detection checks
                 current = (self.pos.row, self.pos.node)
                 #[[1, 0], []]
                 if current not in self.checked_nodes:
@@ -317,7 +341,7 @@ class Path: #Main state machine controlling behaviour
                         self.save_position()
                     
                     # Mark this node as checked
-                    self.checked_nodes.add(current)
+                    self.checked_nodes.add(current)'''
 
 
         elif self.state == "PICKUP":
