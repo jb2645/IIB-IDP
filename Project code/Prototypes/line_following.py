@@ -107,8 +107,6 @@ class Path: #Main state machine controlling behaviour
         self.state = "LEAVING_START"    # Main state machine state
         self.pos_state = "START"        # Position state 
         self.checked_nodes = set()      # Nodes already checked for blocks
-        
-
         self.turn_count = 0             # Turns made in current phase
         self.start_nodes = 0            # Nodes passed leaving start
         self.dropoff_turn_count = 0     # Turns made during dropoff navigation
@@ -306,6 +304,7 @@ class Path: #Main state machine controlling behaviour
             
             if self.pos.row in [1, 3, 6, 7]: #block detection checks
                 current = (self.pos.row, self.pos.node)
+                #[[1, 0], []]
                 if current not in self.checked_nodes:
                     # Check for block using right-side distance sensor
                     self.distance = self.drive.getDistance("R")
