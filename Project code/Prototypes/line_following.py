@@ -198,6 +198,7 @@ class Path: #Main state machine controlling behaviour
 
             elif self.pos_state == "RAMP": #navigates ramp and upper bays
                 if is_new_junction:
+                    sleep(0.1)
                     nodestate = self.pos.on_node()
                     tc = self.turn_count
                    
@@ -366,6 +367,7 @@ class Path: #Main state machine controlling behaviour
                 self.drive.RightUTurn()
                 
             elif is_new_junction:
+                sleep(0.1)
                 if self.noblock == True:
                     # No block was found - return to route
                     self.drive_onto_junction()
@@ -385,6 +387,7 @@ class Path: #Main state machine controlling behaviour
         
         elif self.state == "PUTDOWN": #place block
             if is_new_junction:
+                sleep(0.1)
                 # Drive forward slightly then put down block
                 self.drive.drive(70, 70)
                 sleep(0.3)
@@ -412,6 +415,7 @@ class Path: #Main state machine controlling behaviour
                     self.dropoff_turn_count += 1
                 else:
                     if is_new_junction:
+                        sleep(0.1)
                         nodestate = self.pos.on_node()
                         
                         # Blue bay - first turn
@@ -457,6 +461,7 @@ class Path: #Main state machine controlling behaviour
                     self.dropoff_turn_count += 1
                 else:
                     if is_new_junction:
+                        sleep(0.1)
                         nodestate = self.pos.on_node()
                         
                         # Red bay - first turn
@@ -503,6 +508,7 @@ class Path: #Main state machine controlling behaviour
                     self.dropoff_turn_count += 1
                 else:
                     if is_new_junction:
+                        sleep(0.1)
                         nodestate = self.pos.on_node()
                         
                         # First turn - go left
@@ -571,6 +577,7 @@ class Path: #Main state machine controlling behaviour
                     self.dropoff_turn_count += 1
                 else:
                     if is_new_junction:
+                        sleep(0.1)
                         nodestate = self.pos.on_node()
                         
                         # First turn - go right
@@ -651,6 +658,7 @@ class Path: #Main state machine controlling behaviour
 
         elif self.state == "BEDTIME": #returns to starting position following completion
             if is_new_junction:
+                sleep(0.1)
                 self.pos.on_node()
                 if self.pos.node == 2:
                     # At home position - turn in
