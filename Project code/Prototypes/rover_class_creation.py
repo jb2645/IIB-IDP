@@ -172,7 +172,19 @@ class Rover:
         
         #self.left.Forward(75)
         
+    def reverseright(self):
+        self.right.Forward(75)
+        self.left.Reverse(85)
+        sleep (0.8)
+        self.stop()
+
     def reverseleft(self):
+        self.left.Forward(75)
+        self.right.Reverse(85)
+        sleep (0.8)
+        self.stop()
+    
+    def reverseleft1(self):
         turned = False
         motorstarted = False
         slowflag = False
@@ -203,7 +215,7 @@ class Rover:
                 sleep(0.2)
                 turned = True
                 
-    def reverseright(self):
+    def reverseright1(self):
         turned = False
         motorstarted = False
         slowflag = False
@@ -240,6 +252,7 @@ class Rover:
         self.drive(80, 80)
         sleep(duration)
         self.stop()
+
        
 
     
