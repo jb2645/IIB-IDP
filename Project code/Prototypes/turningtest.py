@@ -62,39 +62,16 @@ if __name__ == "__main__":
 
     # Main loop
     while running:
-        #Robot.motortest()
-        #time.sleep(5)
-        #Robot.stop()
+
         follower.adjust()
         event = sensors.junction_detection()
-        print(event)
+        #print(event)
         if event == "JUNCTION":
-            Robot.turnleft()
-            Robot.stop()
+            Robot.LeftUTurn()
             running = False
-        #Robot.motortest()
-        #event = sensors.junction_detection()
-        #path.update()        
-       # 
-        #pos.turn_end(1)
-        #follower.adjust()
-        #if pos.state == "CLEAR":
-       #     print("Clear")
-        #    follower.adjust()
+            #print(Robot.getDistance("F"))
             
-        #elif pos.state == "NODE":
-        #    Robot.stop()
-         #   print("Node")
-        #    pos.on_node()
-        
-       # elif pos.state == "TURN":
-        #    print("Turn")
-         #   left_value, right_value = sensors.read_junction()
-                
-          #  if left_value > right_value:
-           #     pos.turn_end(1)
-                
-       #     else:
-        #        pos.turn_end(0)
+            
+
 
         time.sleep(0.01)
