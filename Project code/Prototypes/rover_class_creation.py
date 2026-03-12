@@ -127,24 +127,28 @@ class Rover:
     
     
     def turnleft(self):
-        #turned = False
-        #self.right.Forward(80)
-        #self.left.Forward(80)
-        #sleep(0.23)
         self.right.Forward(85)
         self.left.Reverse(75)
         sleep (0.8)
         self.stop()
         
     def turnright(self):
-        #turned = False
-        #self.right.Forward(80)
-        #self.left.Forward(80)
-        #sleep(0.23)
         self.left.Forward(85)
         self.right.Reverse(75)
         sleep (0.8)
         self.stop()
+        
+    def blockturnleft(self):
+        self.right.Forward(85)
+        self.left.Reverse(75)
+        sleep (0.7)
+        self.stop()
+        
+    def blockturnright(self):
+        self.left.Forward(85)
+        self.right.Reverse(75)
+        sleep (0.7)
+        self.stop()        
     
 
     def RightUTurn(self):

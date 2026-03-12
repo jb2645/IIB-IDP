@@ -459,8 +459,9 @@ class Path: #Main state machine controlling behaviour
                 self.escaped = True
                 
             
-            if event == "JUNCTION":
+            elif event == "JUNCTION":
                 self.state = "RETURNING"
+                self.escaped = False
             else:
                 self.follower.adjust()
         
@@ -469,7 +470,7 @@ class Path: #Main state machine controlling behaviour
             if cr == 1: 
                 if self.dropoff_turn_count == 0:
                     # Initial turn to leave pickup area
-                    self.drive.turnleft()
+                    self.drive.blockturnleft()
                     self.pos.U_turn()
                     self.dropoff_turn_count += 1
                 else:
@@ -516,7 +517,7 @@ class Path: #Main state machine controlling behaviour
             
             elif cr == 3:
                 if self.dropoff_turn_count == 0:
-                    self.drive.turnright()
+                    self.drive.blockturnright()
                     self.dropoff_turn_count += 1
                 else:
                     if is_new_junction:
@@ -562,7 +563,7 @@ class Path: #Main state machine controlling behaviour
             
             elif cr == 6:
                 if self.dropoff_turn_count == 0:
-                    self.drive.turnright()
+                    self.drive.blockturnright()
                     self.pos.U_turn()
                     self.dropoff_turn_count += 1
                 else:
@@ -631,7 +632,7 @@ class Path: #Main state machine controlling behaviour
             
             elif cr == 7:
                 if self.dropoff_turn_count == 0:
-                    self.drive.turnleft()
+                    self.drive.blockturnleft()
                     self.pos.U_turn()
                     self.dropoff_turn_count += 1
                 else:
