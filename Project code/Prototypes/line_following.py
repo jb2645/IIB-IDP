@@ -130,6 +130,8 @@ class Path: #Main state machine controlling behaviour
 
         self.timer = 0 #dummy, remove after first test
         self.timerflag = False
+
+        self.escaped = False
         
     def save_position(self):
         """Save current pos_state for returning after delivery"""
@@ -440,7 +442,7 @@ class Path: #Main state machine controlling behaviour
                 
         
         elif self.state == "PUTDOWN": #place block
-            if is_new_junction:
+            if is_new_junction and self.escaped == False:
                 sleep(0.1)
                 # Drive forward slightly then put down block
                 self.drive.drive(70, 70)
@@ -453,8 +455,11 @@ class Path: #Main state machine controlling behaviour
                 
                 # Drive forward to clear bay
                 self.drive.drive(70, 70)
-                sleep(0.5)
+                #sleep(0.5)
+                self.escaped = True
                 
+            
+            if event == "JUNCTION":
                 self.state = "RETURNING"
             else:
                 self.follower.adjust()
