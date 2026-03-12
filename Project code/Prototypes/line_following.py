@@ -5,7 +5,7 @@ from general_component_classes import *
 from rover_class_creation import * 
 import time
 
-DEBUG = True
+DEBUG = False
 def debug_print(*args):
     if DEBUG:
         print(*args)
@@ -403,10 +403,11 @@ class Path: #Main state machine controlling behaviour
                 self.colour = self.drive.DetermineColour()
             ''' 
 
-            if time_since_last > 500 and self.noblock == False:
+            if time_since_last > 700 and self.noblock == False:
                 self.drive.stop()
-                sleep(1)
+                #sleep(1)
                 self.drive.RightUTurn()
+                #sleep(1)
                 debug_print("turn")
                 self.noblock = True
                 debug_print(5)

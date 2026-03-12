@@ -151,14 +151,14 @@ class Rover:
         turned = False
         self.left.Forward(85)
         self.right.Reverse(85)
-        sleep (1.48)
+        sleep (1.35)
         self.stop()
         
     def LeftUTurn(self):
         turned = False
         self.right.Forward(85)
         self.left.Reverse(85)
-        sleep (1.48)
+        sleep (1.35)
         self.stop()
 
     def motortest(self):
