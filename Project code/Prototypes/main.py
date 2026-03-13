@@ -48,8 +48,8 @@ button.irq(trigger=Pin.IRQ_RISING, handler=button_pressed)
 
 if __name__ == "__main__":
     while True:
-        motorL = Motor(dirPin=4, PWMPin=5)#check values later
-        motorR = Motor(dirPin=7, PWMPin=6)
+        motorR = Motor(dirPin=4, PWMPin=5)#check values later
+        motorL = Motor(dirPin=7, PWMPin=6)
         sensors = Optocoupler(12, 21, 14, 20)
         verticalservo = Servo(13)
         horizontalservo = Servo(15)

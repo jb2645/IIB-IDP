@@ -46,8 +46,8 @@ button.irq(trigger=Pin.IRQ_RISING, handler=button_pressed)
 motorL = Motor(dirPin=4, PWMPin=5)#check values later
 motorR = Motor(dirPin=7, PWMPin=6)
 sensors = Optocoupler(12, 21, 14, 20)
-verticalservo = Servo(13)
-horizontalservo = Servo(15)
+verticalservo = Servo(15)
+horizontalservo = Servo(13)
 Robot = Rover(motorL, motorR, sensors, horizontalservo, verticalservo)
 follower = LineFollow(Robot, sensors)
 
@@ -62,12 +62,18 @@ if __name__ == "__main__":
     # Main loop
     while running:
 
+        #Robot.stowGrabber()
+        Robot.test()
+        sleep(1)
+        print(Robot.DetermineColour())
+        sleep(1)
         Robot.stowGrabber()
         sleep(1)
+        Robot.release()
+        sleep(1)
         Robot.deployGrabber()
-        sleep(1)
-        Robot.pickup()
-        sleep(1)
+        #Robot.pickup()
+        #sleep(1)
             
 
 

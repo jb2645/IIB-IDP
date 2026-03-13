@@ -31,23 +31,23 @@ class Rover:
         
     def VL53INIT(self):
         fronti2c_bus = I2C(id=0, sda=Pin(16), scl=Pin(17))    #sets I2C pins used for sensors
-        #righti2c_bus = I2C(id=0, sda=Pin(18), scl=Pin(19))
+        righti2c_bus = I2C(id=0, sda=Pin(18), scl=Pin(19))
         
         self.frontvl53l0 = VL53L0X(fronti2c_bus)
         self.frontvl53l0.set_Vcsel_pulse_period(self.frontvl53l0.vcsel_period_type[0], 18)      #sets pulse period/range of sensor
         self.frontvl53l0.set_Vcsel_pulse_period(self.frontvl53l0.vcsel_period_type[1], 14)
         self.frontvl53l0.start()
         
-        #self.rightvl53l0 = VL53L0X(righti2c_bus)
-        #self.rightvl53l0.set_Vcsel_pulse_period(self.rightvl53l0.vcsel_period_type[0], 18)      #sets pulse period/range of sensor
-        #self.rightvl53l0.set_Vcsel_pulse_period(self.rightvl53l0.vcsel_period_type[1], 14)
-        #self.rightvl53l0.start()
+        self.rightvl53l0 = VL53L0X(righti2c_bus)
+        self.rightvl53l0.set_Vcsel_pulse_period(self.rightvl53l0.vcsel_period_type[0], 18)      #sets pulse period/range of sensor
+        self.rightvl53l0.set_Vcsel_pulse_period(self.rightvl53l0.vcsel_period_type[1], 14)
+        self.rightvl53l0.start()
         
         
     def getDistance(self, direction):
         # Determine which direction of sensor is being activated
         #if direction == "R":
-            #distance = self.rightvl53l0.read()
+        #    distance = self.rightvl53l0.read()
             
         if direction == "R":
             distance = self.frontvl53l0.read()
@@ -55,10 +55,19 @@ class Rover:
         return distance
         
     def deployGrabber(self):
-        self.verticalservo.setrotation(20)
+        self.verticalservo.setrotation(0)
 
     def stowGrabber(self):
-        self.verticalservo.setrotation(90)
+        self.verticalservo.setrotation(40)
+        
+    def grab(self):
+        self.horizontalservo.setrotation(90)
+        
+    def release(self):
+        self.horizontalservo.setrotation(20)
+        
+    def test(self):
+        self.left.set_speed(100)
 
         
     def SetBlockStatus(self, isholdingblock):
@@ -84,24 +93,25 @@ class Rover:
     
     def DetermineColour(self):
         #expected voltages for given resistances - 0.029 - 100 ohm, 0.273 1kohm, 1.5 10kohm, 2.727 100kohm   ####change this later
+        #determined voltages = 0.05 blue , 0.38 green, 1.84 red, 2.19 yellow
         adc = ADC(26)    # sets GPIO 26 as analogue port in
         valuein = adc.read_u16()      
         testvoltagein = valuein * 3.3 / 65535           #converts analogue signal to voltage
         self.testvoltagein = testvoltagein
-        if self.testvoltagein > 0.02 and self.testvoltagein < 0.04:
+        if self.testvoltagein > 0.01 and self.testvoltagein < 0.1:
             self.blueled.value(1)
             return "Blue"
-        elif self.testvoltagein > 0.2 and self.testvoltagein < 0.4:
+        elif self.testvoltagein > 0.2 and self.testvoltagein < 0.6:
             self.greenled.value(1)
             return "Green"
-        elif self.testvoltagein > 1.4 and self.testvoltagein < 1.6:
+        elif self.testvoltagein > 1.4 and self.testvoltagein < 2.0:
             self.redled.value(1)
             return "Red"
-        elif self.testvoltagein > 2.65 and self.testvoltagein < 2.95:
+        elif self.testvoltagein > 2.1 and self.testvoltagein < 2.21:
             self.yellowled.value(1)
             return "Yellow"
         else:
-            print("No Object")
+            #print("No Object")
             return "None"
         
     def pickup(self):
@@ -127,41 +137,41 @@ class Rover:
     
     
     def turnleft(self):
-        self.right.Forward(85)
-        self.left.Reverse(75)
-        sleep (0.8)
+        self.right.Forward(90)
+        self.left.Reverse(100)
+        sleep (0.9)
         self.stop()
         
     def turnright(self):
-        self.left.Forward(85)
-        self.right.Reverse(75)
-        sleep (0.8)
+        self.left.Forward(90)
+        self.right.Reverse(100)
+        sleep (0.9)
         self.stop()
         
     def blockturnleft(self):
-        self.right.Forward(85)
-        self.left.Reverse(75)
+        self.right.Forward(100)
+        self.left.Reverse(90)
         sleep (0.7)
         self.stop()
         
     def blockturnright(self):
-        self.left.Forward(85)
-        self.right.Reverse(75)
+        self.left.Forward(100)
+        self.right.Reverse(90)
         sleep (0.7)
         self.stop()        
     
 
     def RightUTurn(self):
         turned = False
-        self.left.Forward(85)
-        self.right.Reverse(85)
+        self.left.Forward(100)
+        self.right.Reverse(100)
         sleep (1.35)
         self.stop()
         
     def LeftUTurn(self):
         turned = False
-        self.right.Forward(85)
-        self.left.Reverse(85)
+        self.right.Forward(100)
+        self.left.Reverse(100)
         sleep (1.35)
         self.stop()
 
