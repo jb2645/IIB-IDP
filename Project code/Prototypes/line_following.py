@@ -11,35 +11,40 @@ def debug_print(*args):
         print(*args)
 
 class LineFollow: #Handles line following with the inner sensors
-    def __init__(self, drive, sensors, base_speed=80, correction=20):
+    def __init__(self, drive, sensors, base_speed=80, correction=30):
 
         self.drive = drive
         self.sensors = sensors
         self.base_speed = base_speed
         self.correction = correction
+        self.last_error = 0
         
-        self.speed_left_correct = base_speed + correction
-        self.speed_right_correct = base_speed - correction
+        
     def adjust(self):
         left, right = self.sensors.read_line()
         
         if left == 0 and right == 0:
             # Both sensors on line - drive straight
-            self.drive.drive(self.base_speed, self.base_speed)
-
+            error = 0
         elif left == 0 and right == 1:
             # Drifting right - correct left
-            self.drive.drive(self.speed_left_correct,
-                             self.speed_right_correct)
+            error = 1
 
         elif left == 1 and right == 0:
             # Drifting left - correct right
-            self.drive.drive(self.speed_right_correct,
-                             self.speed_left_correct)
+            error = -1
         
         else:
             # Both off line - drive straight (recovery)
-            self.drive.drive(self.base_speed, self.base_speed)
+            error = self.last_error * 1.5
+        
+        self.last_error = error
+        
+        #speed_left_correct = base_speed + correction
+        #speed_right_correct = base_speed - correction
+        
+        self.drive.drive(speed_left, speed_right)
+        
 
 
 class Position: #Tracks rover's position on grid
