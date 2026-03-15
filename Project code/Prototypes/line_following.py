@@ -404,16 +404,14 @@ class Path: #Main state machine controlling behaviour
 
 
         elif self.state == "PICKUP":
-            if self.timerflag == False:
-                self.timer = time.ticks_ms()
-                self.timerflag = True
-                debug_print(9)
+            #if self.timerflag == False:
+            #    self.timer = time.ticks_ms()
+            #    self.timerflag = True
+            #    debug_print(9)
                 
-            time_since_last = time.ticks_diff(time.ticks_ms(), self.timer)   ##delete after test
+            #time_since_last = time.ticks_diff(time.ticks_ms(), self.timer)   ##delete after test
 
-            # TODO: Replace with actual distance sensor reading
-            blockdistance = 290  # Placeholder
-            debug_print(6)
+            blockdistance = self.getDistance("F")
             
             if blockdistance > 300 and self.drive.GetBlockStatus() == False and self.noblock == False:
                 # No block found - turn around
@@ -429,14 +427,17 @@ class Path: #Main state machine controlling behaviour
                     self.noblock = False
                 debug_print(1)
             
-            '''  
-            if blockdistance < 10:
-                # Close enough to pickup
+            
+            if blockdistance < 20:
+                # Close enough to pickup, grabs block and turns around
                 self.drive.stop()
                 self.drive.pickup()
-                self.colour = self.drive.DetermineColour()
-            ''' 
-
+                self.drive.drive(-60, -60)
+                sleep(0.2)
+                self.drive.RightUTurn()
+                
+             
+'''
             if time_since_last > 700 and self.noblock == False:
                 self.drive.stop()
                 #sleep(1)
@@ -445,7 +446,7 @@ class Path: #Main state machine controlling behaviour
                 debug_print("turn")
                 self.noblock = True
                 debug_print(5)
-                
+          '''      
                 
 
             #elif self.drive.GetBlockStatus() == True:
@@ -454,18 +455,12 @@ class Path: #Main state machine controlling behaviour
                 
             elif is_new_junction:
                 sleep(0.1)
-                debug_print(2)
-                if False:
-                    pass
-                else:
-                    # Block picked up - go to dropoff
-                    self.state = "DROPOFF"
-                    self.current_row = self.pos.row
-                    #self.colour = self.drive.DetermineColour()
-                    self.colour = "Green"
-
-                    self.timerflag = False   #delete later
-                    self.noblock = True
+                # Block picked up - go to dropoff
+                self.state = "DROPOFF"
+                self.current_row = self.pos.row
+                self.colour = self.drive.DetermineColour()
+                
+                self.noblock = True
             
             else: 
                 self.follower.adjust()

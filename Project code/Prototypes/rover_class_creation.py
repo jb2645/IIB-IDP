@@ -31,7 +31,7 @@ class Rover:
         
     def VL53INIT(self):
         fronti2c_bus = I2C(id=0, sda=Pin(16), scl=Pin(17))    #sets I2C pins used for sensors
-        righti2c_bus = I2C(id=0, sda=Pin(18), scl=Pin(19))
+        righti2c_bus = I2C(id=1, sda=Pin(18), scl=Pin(19))
         
         self.frontvl53l0 = VL53L0X(fronti2c_bus)
         self.frontvl53l0.set_Vcsel_pulse_period(self.frontvl53l0.vcsel_period_type[0], 18)      #sets pulse period/range of sensor
@@ -46,10 +46,10 @@ class Rover:
         
     def getDistance(self, direction):
         # Determine which direction of sensor is being activated
-        #if direction == "R":
-        #    distance = self.rightvl53l0.read()
-            
         if direction == "R":
+            distance = self.rightvl53l0.read()
+            
+        if direction == "F":
             distance = self.frontvl53l0.read()
             
         return distance
@@ -66,23 +66,39 @@ class Rover:
     def release(self):
         self.horizontalservo.setrotation(20)
         
-    def test(self):
-        self.left.set_speed(100)
-
-        
     def SetBlockStatus(self, isholdingblock):
         self.isholdingblock = isholdingblock
         
     def GetBlockStatus(self):
         return self.isholdingblock
         
+    def pickup(self): #picks up block and stows when rover is in correct position
+        self.isholdingblock = True
+        self.release()
+        self.deployGrabber()
+        sleep(0.05)
+        self.grab()
+        sleep(0.05)
+        self.stowGrabber()        
+        
+    def putdown(self):
+        self.blueled.value(0)       #switch off all LEDs
+        self.greenled.value(0)
+        self.redled.value(0)
+        self.yellowled.value(0)
+        self.isholdingblock = False
+        
+        self.deployGrabber()   #places block down
+        sleep(0.05)
+        self.release()
+        sleep(0.05)
+        self.stowGrabber()
+        self.grab()
+        
+    
     def drive(self, left_speed, right_speed):
         self.left.set_speed(left_speed)
         self.right.set_speed(right_speed)
-
-    
-    def For(self):
-        self.left.Forward()
 
     def stop(self):
         self.left.off()
@@ -112,28 +128,7 @@ class Rover:
             return "Yellow"
         else:
             #print("No Object")
-            return "None"
-        
-    def pickup(self):
-        self.isholdingblock = True
-        self.horizontalservo.setrotation(110)
-        self.verticalservo.setrotation(5)
-        sleep(0.1)
-        self.horizontalservo.setrotation(80)
-        self.drive(-45, -45)
-        sleep(0.1)
-        self.verticalservo.setrotation(90)
-        
-        
-    def putdown(self):
-        self.blueled.value(0)       #switch off all LEDs
-        self.greenled.value(0)
-        self.redled.value(0)
-        self.yellowled.value(0)
-        self.isholdingblock = False
-        
-        
-        
+            return "None"        
     
     
     def turnleft(self):
