@@ -358,7 +358,7 @@ class Path: #Main state machine controlling behaviour
         
             
             
-            '''if self.pos.row in [1, 3, 6, 7]: #block detection checks
+            if self.pos.row in [1, 3, 6, 7]: #block detection checks
                 current = (self.pos.row, self.pos.node)
                 #[[1, 0], []]
                 if current not in self.checked_nodes:
@@ -374,7 +374,7 @@ class Path: #Main state machine controlling behaviour
                         self.save_position()
                     
                     # Mark this node as checked
-                    self.checked_nodes.add(current)'''
+                    self.checked_nodes.add(current)
 
 
         elif self.state == "PICKUP":
@@ -395,13 +395,14 @@ class Path: #Main state machine controlling behaviour
                 debug_print(1)
             
             
-            if blockdistance < 38:
+            if blockdistance < 38 and self.drive.GetBlockStatus() == False:
                 # Close enough to pickup, grabs block and turns around
                 self.drive.stop()
                 self.drive.pickup()
                 self.drive.drive(-60, -60)
                 sleep(0.2)
                 self.drive.stowGrabber()
+                sleep(0.2)
                 self.drive.RightUTurn()
                 self.drive.drive(-60, -60)
                 sleep(0.2)
@@ -410,13 +411,15 @@ class Path: #Main state machine controlling behaviour
             elif is_new_junction:
                 sleep(0.1)
                 # Block picked up - go to dropoff
+                self.follower.setbasespeed(80)
                 self.state = "DROPOFF"
                 self.current_row = self.pos.row
                 self.colour = self.drive.DetermineColour()
                 
                 self.noblock = True
             
-            else: 
+            else:
+                self.follower.setbasespeed(60)
                 self.follower.adjust()
                 debug_print(3)
 
