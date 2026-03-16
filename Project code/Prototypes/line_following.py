@@ -180,7 +180,8 @@ class Path: #Main state machine controlling behaviour
     
 
 
-
+    def SetState(self, state):
+        self.pos_state = state
     
     
     def update(self):
@@ -201,6 +202,7 @@ class Path: #Main state machine controlling behaviour
         event = self.sensors.junction_detection()
         is_new_junction = (event == "JUNCTION") and (not self.junction)
         
+
 
         if self.state == "LEAVING_START": #leaves starting area
             if is_new_junction:
@@ -411,13 +413,6 @@ class Path: #Main state machine controlling behaviour
 
 
         elif self.state == "PICKUP":
-            #if self.timerflag == False:
-            #    self.timer = time.ticks_ms()
-            #    self.timerflag = True
-            #    debug_print(9)
-                
-            #time_since_last = time.ticks_diff(time.ticks_ms(), self.timer)   ##delete after test
-
             blockdistance = self.drive.getDistance("F")
             
             if blockdistance > 300 and self.drive.GetBlockStatus() == False and self.noblock == False:
@@ -443,6 +438,9 @@ class Path: #Main state machine controlling behaviour
                 sleep(0.2)
                 self.drive.stowGrabber()
                 self.drive.RightUTurn()
+                self.drive.drive(-60, -60)
+                sleep(0.2)
+
                          
             elif is_new_junction:
                 sleep(0.1)
