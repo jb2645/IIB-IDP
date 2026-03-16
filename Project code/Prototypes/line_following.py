@@ -11,20 +11,22 @@ def debug_print(*args):
         print(*args)
 
 class LineFollow: #Handles line following with the inner sensors
-    def __init__(self, drive, sensors, base_speed=100, correction=20):
+    def __init__(self, drive, sensors, base_speed=80, correction=20):
 
         self.drive = drive
         self.sensors = sensors
         self.base_speed = base_speed
         self.correction = correction
-        
-        left_speed = max(0, min(100, left_speed))
-        right_speed = max(0, min(100, right_speed))
+
 
 
         
         self.speed_left_correct = max(0,min(100,base_speed + correction))
         self.speed_right_correct = max(0,min(100,base_speed - correction))
+        
+    def setbasespeed(self,speed):
+        self.base_speed = speed
+    
     def adjust(self):
         left, right = self.sensors.read_line()
         
