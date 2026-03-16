@@ -11,56 +11,21 @@ def debug_print(*args):
         print(*args)
 
 class LineFollow: #Handles line following with the inner sensors
-     def __init__(self, drive, sensors, base_speed=80, kp=15, kd=10, decay=0.8):
+    def __init__(self, drive, sensors, base_speed=100, correction=20):
+
         self.drive = drive
         self.sensors = sensors
         self.base_speed = base_speed
-        self.kp = kp
-        self.kd = kd
-        self.decay = decay
+        self.correction = correction
         
-        self.position = 0.0      # Estimated position (-1 to 1, continuous)
-        self.last_position = 0.0
-    
-    def adjust(self):
-        left, right = self.sensors.read_line()
-        
-        # Update position estimate based on sensor readings
-        if left == 0 and right == 0:
-            # On line - decay toward center
-            self.position *= self.decay
-        
-        elif left == 0 and right == 1:
-            # Drifting right - nudge position estimate right
-            self.position += (1.0 - self.position) * 0.3
-        
-        elif left == 1 and right == 0:
-            # Drifting left - nudge position estimate left
-            self.position += (-1.0 - self.position) * 0.3
-        
-        else:
-            # Lost line - continue drifting in last known direction
-            self.position *= 1.1  # Amplify slightly
-            self.position = max(-1.5, min(1.5, self.position))  # Clamp
-        
-        # Calculate derivative (rate of change)
-        derivative = self.position - self.last_position
-        self.last_position = self.position
-        
-        # PD control
-        correction = (self.kp * self.position) + (self.kd * derivative)
-        
-        # Apply to motors
-        left_speed = self.base_speed + correction
-        right_speed = self.base_speed - correction
-        
-        # Clamp speeds
         left_speed = max(0, min(100, left_speed))
         right_speed = max(0, min(100, right_speed))
+
+
         
-        self.drive.drive(left_speed, right_speed)
-        
-    def adjust1(self):     #jack testing remove later
+        self.speed_left_correct = max(0,min(100,base_speed + correction))
+        self.speed_right_correct = max(0,min(100,base_speed - correction))
+    def adjust(self):
         left, right = self.sensors.read_line()
         
         if left == 0 and right == 0:
