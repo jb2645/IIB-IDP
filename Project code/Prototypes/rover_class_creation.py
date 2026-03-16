@@ -32,7 +32,7 @@ class Rover:
     def VL53INIT(self):
         fronti2c_bus = I2C(id=1, sda=Pin(18), scl=Pin(19), freq=100000)    #sets I2C pins used for sensors
         
-        sleep_ms(50)
+        sleep(0.05)
         
         self.frontvl53l0 = VL53L0X(fronti2c_bus)
         self.frontvl53l0.set_Vcsel_pulse_period(self.frontvl53l0.vcsel_period_type[0], 18)      #sets pulse period/range of sensor
@@ -42,7 +42,7 @@ class Rover:
         righti2c_bus = I2C(id=0, sda=Pin(16), scl=Pin(17), freq=100000) 
 
         
-        sleep_ms(50)
+        sleep(0.05)
         
         self.rightvl53l0 = VL53L0X(righti2c_bus)
         self.rightvl53l0.set_Vcsel_pulse_period(self.rightvl53l0.vcsel_period_type[0], 18)      #sets pulse period/range of sensor

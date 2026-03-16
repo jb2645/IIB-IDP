@@ -11,7 +11,7 @@ def debug_print(*args):
         print(*args)
 
 class LineFollow: #Handles line following with the inner sensors
-     def __init__(self, drive, sensors, base_speed=80, kp=15, kd=10, decay=0.8):
+    def __init__(self, drive, sensors, base_speed=80, kp=25, kd=10, decay=0.8):
         self.drive = drive
         self.sensors = sensors
         self.base_speed = base_speed
@@ -21,7 +21,10 @@ class LineFollow: #Handles line following with the inner sensors
         
         self.position = 0.0      # Estimated position (-1 to 1, continuous)
         self.last_position = 0.0
-    
+
+    def setbasespeed(self, speed):
+        self.base_speed = speed
+        
     def adjust(self):
         left, right = self.sensors.read_line()
         
@@ -59,29 +62,6 @@ class LineFollow: #Handles line following with the inner sensors
         right_speed = max(0, min(100, right_speed))
         
         self.drive.drive(left_speed, right_speed)
-        
-    def adjust1(self):     #jack testing remove later
-        left, right = self.sensors.read_line()
-        
-        if left == 0 and right == 0:
-            # Both sensors on line - drive straight
-            self.drive.drive(self.base_speed, self.base_speed)
-
-        elif left == 0 and right == 1:
-            # Drifting right - correct left
-            self.drive.drive(self.speed_left_correct,
-                             self.speed_right_correct)
-
-        elif left == 1 and right == 0:
-            # Drifting left - correct right
-            self.drive.drive(self.speed_right_correct,
-                             self.speed_left_correct)
-        
-        else:
-            # Both off line - drive straight (recovery)
-            self.drive.drive(self.base_speed, self.base_speed)
-
-
 
 class Position: #Tracks rover's position on grid
     def __init__(self, grid, end_nodes):
@@ -393,7 +373,7 @@ class Path: #Main state machine controlling behaviour
         
             
             
-            '''if self.pos.row in [1, 3, 6, 7]: #block detection checks
+            if self.pos.row in [1, 3, 6, 7]: #block detection checks
                 current = (self.pos.row, self.pos.node)
                 #[[1, 0], []]
                 if current not in self.checked_nodes:
@@ -409,7 +389,7 @@ class Path: #Main state machine controlling behaviour
                         self.save_position()
                     
                     # Mark this node as checked
-                    self.checked_nodes.add(current)'''
+                    self.checked_nodes.add(current)
 
 
         elif self.state == "PICKUP":
@@ -430,13 +410,14 @@ class Path: #Main state machine controlling behaviour
                 debug_print(1)
             
             
-            if blockdistance < 38:
+            if blockdistance < 38 and self.drive.GetBlockStatus() == False:
                 # Close enough to pickup, grabs block and turns around
                 self.drive.stop()
                 self.drive.pickup()
                 self.drive.drive(-60, -60)
                 sleep(0.2)
                 self.drive.stowGrabber()
+                sleep(0.2)
                 self.drive.RightUTurn()
                 self.drive.drive(-60, -60)
                 sleep(0.2)
@@ -445,13 +426,15 @@ class Path: #Main state machine controlling behaviour
             elif is_new_junction:
                 sleep(0.1)
                 # Block picked up - go to dropoff
+                self.follower.setbasespeed(80)
                 self.state = "DROPOFF"
                 self.current_row = self.pos.row
                 self.colour = self.drive.DetermineColour()
                 
                 self.noblock = True
             
-            else: 
+            else:
+                self.follower.setbasespeed(60)
                 self.follower.adjust()
                 debug_print(3)
 
