@@ -392,7 +392,7 @@ class Path: #Main state machine controlling behaviour
                     self.distance = self.drive.getDistance("R")
                     print(self.distance)
                     
-                    if self.distance < 260:
+                    if self.distance < 249:
                         # Block detected - switch to pickup mode
                         self.state = "PICKUP"
                         self.drive.drive_onto_junction()
@@ -411,7 +411,7 @@ class Path: #Main state machine controlling behaviour
                 
             #time_since_last = time.ticks_diff(time.ticks_ms(), self.timer)   ##delete after test
 
-            blockdistance = self.getDistance("F")
+            blockdistance = self.drive.getDistance("F")
             
             if blockdistance > 300 and self.drive.GetBlockStatus() == False and self.noblock == False:
                 # No block found - turn around
@@ -428,31 +428,15 @@ class Path: #Main state machine controlling behaviour
                 debug_print(1)
             
             
-            if blockdistance < 20:
+            if blockdistance < 38:
                 # Close enough to pickup, grabs block and turns around
                 self.drive.stop()
                 self.drive.pickup()
                 self.drive.drive(-60, -60)
                 sleep(0.2)
+                self.drive.stowGrabber()
                 self.drive.RightUTurn()
-                
-             
-'''
-            if time_since_last > 700 and self.noblock == False:
-                self.drive.stop()
-                #sleep(1)
-                self.drive.RightUTurn()
-                #sleep(1)
-                debug_print("turn")
-                self.noblock = True
-                debug_print(5)
-          '''      
-                
-
-            #elif self.drive.GetBlockStatus() == True:
-            #    # Block picked up - turn around
-            #    self.drive.RightUTurn()
-                
+                         
             elif is_new_junction:
                 sleep(0.1)
                 # Block picked up - go to dropoff

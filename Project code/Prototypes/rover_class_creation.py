@@ -30,8 +30,8 @@ class Rover:
         
         
     def VL53INIT(self):
-        fronti2c_bus = I2C(id=0, sda=Pin(16), scl=Pin(17))    #sets I2C pins used for sensors
-        righti2c_bus = I2C(id=1, sda=Pin(18), scl=Pin(19))
+        righti2c_bus = I2C(id=0, sda=Pin(16), scl=Pin(17))    #sets I2C pins used for sensors
+        fronti2c_bus = I2C(id=1, sda=Pin(18), scl=Pin(19))
         
         self.frontvl53l0 = VL53L0X(fronti2c_bus)
         self.frontvl53l0.set_Vcsel_pulse_period(self.frontvl53l0.vcsel_period_type[0], 18)      #sets pulse period/range of sensor
@@ -55,16 +55,20 @@ class Rover:
         return distance
         
     def deployGrabber(self):
-        self.verticalservo.setrotation(0)
+        self.verticalservo.setrotation(10)
 
     def stowGrabber(self):
-        self.verticalservo.setrotation(40)
+        self.verticalservo.setrotation(65)
+        
+    def raiseGrabber(self):
+        self.verticalservo.setrotation(25)
+        
         
     def grab(self):
         self.horizontalservo.setrotation(90)
         
     def release(self):
-        self.horizontalservo.setrotation(20)
+        self.horizontalservo.setrotation(60)
         
     def SetBlockStatus(self, isholdingblock):
         self.isholdingblock = isholdingblock
@@ -75,11 +79,12 @@ class Rover:
     def pickup(self): #picks up block and stows when rover is in correct position
         self.isholdingblock = True
         self.release()
+        sleep(0.4)
         self.deployGrabber()
-        sleep(0.05)
+        sleep(0.5)
         self.grab()
-        sleep(0.05)
-        self.stowGrabber()        
+        sleep(0.5)
+        self.raiseGrabber()        
         
     def putdown(self):
         self.blueled.value(0)       #switch off all LEDs
@@ -89,9 +94,9 @@ class Rover:
         self.isholdingblock = False
         
         self.deployGrabber()   #places block down
-        sleep(0.05)
+        sleep(0.3)
         self.release()
-        sleep(0.05)
+        sleep(0.4)
         self.stowGrabber()
         self.grab()
         
@@ -134,13 +139,13 @@ class Rover:
     def turnleft(self):
         self.right.Forward(90)
         self.left.Reverse(100)
-        sleep (0.9)
+        sleep (0.8)
         self.stop()
         
     def turnright(self):
         self.left.Forward(90)
         self.right.Reverse(100)
-        sleep (0.9)
+        sleep (0.8)
         self.stop()
         
     def blockturnleft(self):

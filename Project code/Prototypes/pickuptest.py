@@ -63,17 +63,24 @@ if __name__ == "__main__":
     while running:
 
         #Robot.stowGrabber()
-        Robot.test()
-        sleep(1)
-        print(Robot.DetermineColour())
-        sleep(1)
-        Robot.stowGrabber()
-        sleep(1)
-        Robot.release()
-        sleep(1)
-        Robot.deployGrabber()
-        #Robot.pickup()
+        #Robot.test()
         #sleep(1)
+        #print(Robot.DetermineColour())
+        #sleep(1)
+        #Robot.stowGrabber()
+        #sleep(1)
+        #Robot.release()
+        #sleep(1)
+       # Robot.deployGrabber()
+        Robot.pickup()
+        sleep(2)
+        
+        
+        #print(Robot.DetermineColour())
+        print(Robot.getDistance("F"), Robot.getDistance("R"))
+        #Robot.putdown()
+        
+        sleep(0.5)
             
 
 
