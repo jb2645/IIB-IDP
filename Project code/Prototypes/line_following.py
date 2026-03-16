@@ -11,47 +11,43 @@ def debug_print(*args):
         print(*args)
 
 class LineFollow: #Handles line following with the inner sensors
-    def __init__(self, drive, sensors, base_speed=70, correction=30):
-
+    def __init__(self, drive, sensors, base_speed=80, kp=30, kd=15):
         self.drive = drive
         self.sensors = sensors
         self.base_speed = base_speed
-        self.correction = correction
+        self.kp = kp
+        self.kd = kd
         self.last_error = 0
-        
-        self.speed_left_correct = base_speed + correction     #just for my testing remove later
-        self.speed_right_correct = base_speed - correction
-        
-        
-    def adjust1(self):
+    
+    def adjust(self):
         left, right = self.sensors.read_line()
         
+        # Map to error
         if left == 0 and right == 0:
-            # Both sensors on line - drive straight
             error = 0
         elif left == 0 and right == 1:
-            # Drifting right - correct left
             error = 1
-
         elif left == 1 and right == 0:
-            # Drifting left - correct right
             error = -1
-        
         else:
-            # Both off line - drive straight (recovery)
-            error = self.last_error * 1
+            error = self.last_error
         
+        # Derivative: rate of change
+        derivative = error - self.last_error
         self.last_error = error
-        correction = self.last_error * self.correction
         
-        #speed_left_correct = base_speed + correction
-        #speed_right_correct = base_speed - correction
-        speed_left = self.base_speed + correction
-        speed_right = self.base_speed - correction
+        # PD correction
+        correction = (self.kp * error) + (self.kd * derivative)
         
-        self.drive.drive(speed_left, speed_right)
+        left_speed = self.base_speed + correction
+        right_speed = self.base_speed - correction
         
-    def adjust(self):     #jack testing remove later
+        left_speed = max(0, min(100, left_speed))
+        right_speed = max(0, min(100, right_speed))
+        
+        self.drive.drive(left_speed, right_speed)
+        
+    def adjust1(self):     #jack testing remove later
         left, right = self.sensors.read_line()
         
         if left == 0 and right == 0:
