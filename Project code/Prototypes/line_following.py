@@ -11,37 +11,50 @@ def debug_print(*args):
         print(*args)
 
 class LineFollow: #Handles line following with the inner sensors
-    def __init__(self, drive, sensors, base_speed=80, kp=30, kd=15):
+     def __init__(self, drive, sensors, base_speed=80, kp=15, kd=10, decay=0.8):
         self.drive = drive
         self.sensors = sensors
         self.base_speed = base_speed
         self.kp = kp
         self.kd = kd
-        self.last_error = 0
+        self.decay = decay
+        
+        self.position = 0.0      # Estimated position (-1 to 1, continuous)
+        self.last_position = 0.0
     
     def adjust(self):
         left, right = self.sensors.read_line()
         
-        # Map to error
+        # Update position estimate based on sensor readings
         if left == 0 and right == 0:
-            error = 0
+            # On line - decay toward center
+            self.position *= self.decay
+        
         elif left == 0 and right == 1:
-            error = 1
+            # Drifting right - nudge position estimate right
+            self.position += (1.0 - self.position) * 0.3
+        
         elif left == 1 and right == 0:
-            error = -1
+            # Drifting left - nudge position estimate left
+            self.position += (-1.0 - self.position) * 0.3
+        
         else:
-            error = self.last_error
+            # Lost line - continue drifting in last known direction
+            self.position *= 1.1  # Amplify slightly
+            self.position = max(-1.5, min(1.5, self.position))  # Clamp
         
-        # Derivative: rate of change
-        derivative = error - self.last_error
-        self.last_error = error
+        # Calculate derivative (rate of change)
+        derivative = self.position - self.last_position
+        self.last_position = self.position
         
-        # PD correction
-        correction = (self.kp * error) + (self.kd * derivative)
+        # PD control
+        correction = (self.kp * self.position) + (self.kd * derivative)
         
+        # Apply to motors
         left_speed = self.base_speed + correction
         right_speed = self.base_speed - correction
         
+        # Clamp speeds
         left_speed = max(0, min(100, left_speed))
         right_speed = max(0, min(100, right_speed))
         
@@ -293,7 +306,7 @@ class Path: #Main state machine controlling behaviour
                             self.pos.U_turn()
                             self.drive.LeftUTurn()
                             sleep(0.1)
-                            #self.pos.node = 6
+                            self.pos.node = 6
                         else:
                             self.drive.drive(60,60)
                     elif tc == 6:
@@ -324,7 +337,7 @@ class Path: #Main state machine controlling behaviour
                             self.pos.U_turn()
                             self.drive.RightUTurn()
                             sleep(0.1)
-                            #self.pos.node = 6 
+                            self.pos.node = 6 
                         else:
                             self.drive.drive(60,60)
                             
@@ -340,14 +353,12 @@ class Path: #Main state machine controlling behaviour
                     
                     # Phase 7: Leave ramp and return home (turns 10-13)
                     elif tc == 10:
-                        if nodestate == "NODE" and self.pos.node == 1:
+                        if nodestate == "NODE" or nodestate == "TURN":
                             # First turn off ramp
                             self.turn_count += 1
                             self.drive.drive_onto_junction()
                             self.drive.turnright()
                             self.pos.turn_end(0)
-                        else:
-                            self.drive.drive(60,60)
                         
                     elif tc == 11:
                         self.pos.row = 4
@@ -380,7 +391,7 @@ class Path: #Main state machine controlling behaviour
         
             
             
-            if self.pos.row in [1, 3, 6, 7]: #block detection checks
+            '''if self.pos.row in [1, 3, 6, 7]: #block detection checks
                 current = (self.pos.row, self.pos.node)
                 #[[1, 0], []]
                 if current not in self.checked_nodes:
@@ -396,7 +407,7 @@ class Path: #Main state machine controlling behaviour
                         self.save_position()
                     
                     # Mark this node as checked
-                    self.checked_nodes.add(current)
+                    self.checked_nodes.add(current)'''
 
 
         elif self.state == "PICKUP":

@@ -137,27 +137,27 @@ class Rover:
     
     
     def turnleft(self):
-        self.right.Forward(90)
-        self.left.Reverse(100)
-        sleep (0.8)
+        self.right.Forward(85)
+        self.left.Reverse(75)
+        sleep (1.1)
         self.stop()
         
     def turnright(self):
-        self.left.Forward(90)
-        self.right.Reverse(100)
-        sleep (0.8)
+        self.left.Forward(85)
+        self.right.Reverse(75)
+        sleep (1.1)
         self.stop()
         
     def blockturnleft(self):
-        self.right.Forward(100)
-        self.left.Reverse(90)
-        sleep (0.7)
+        self.right.Forward(85)
+        self.left.Reverse(75)
+        sleep (1.1)
         self.stop()
         
     def blockturnright(self):
-        self.left.Forward(100)
-        self.right.Reverse(90)
-        sleep (0.7)
+        self.left.Forward(85)
+        self.right.Reverse(75)
+        sleep (1.1)
         self.stop()        
     
 
@@ -165,14 +165,14 @@ class Rover:
         turned = False
         self.left.Forward(100)
         self.right.Reverse(100)
-        sleep (1.35)
+        sleep (1.5)
         self.stop()
         
     def LeftUTurn(self):
         turned = False
         self.right.Forward(100)
         self.left.Reverse(100)
-        sleep (1.35)
+        sleep (1.5)
         self.stop()
 
     def motortest(self):
