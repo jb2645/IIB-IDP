@@ -36,6 +36,7 @@ def button_pressed(pin):
             print("STARTED")
         else:
             Robot.stop()
+            Robot.stowGrabber()
             print("STOPPED")
 
     last_press_time = currenttime
