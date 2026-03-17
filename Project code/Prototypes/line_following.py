@@ -472,7 +472,7 @@ class Path: #Main state machine controlling behaviour
                 sleep(0.1)
                 # Drive forward slightly then put down block
                 self.drive.drive(70, 70)
-                sleep(0.3)
+                sleep(0.1)
                 self.drive.putdown()
                 
                 # U-turn to exit bay
