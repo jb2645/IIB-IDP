@@ -57,7 +57,7 @@ class Rover:
             
         if direction == "F":
             distance = self.frontvl53l0.read()
-        print("distance")
+        #print("distance")
         return distance
         
     def deployGrabber(self):
@@ -150,13 +150,13 @@ class Rover:
     def turnleft(self):
         self.right.Forward(85)
         self.left.Reverse(75)
-        sleep (0.97)
+        sleep (1)
         self.stop()
         
     def turnright(self):
         self.left.Forward(85)
         self.right.Reverse(75)
-        sleep (0.97)
+        sleep (1)
         self.stop()
         
     def blockturnleft(self):

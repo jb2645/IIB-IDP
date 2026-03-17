@@ -455,6 +455,9 @@ class Path: #Main state machine controlling behaviour
                 debug_print("U-turn")
                 self.drive.RightUTurn()
                 sleep(0.1)
+                self.drive.drive(-60,-60)
+                sleep(0.3)
+                self.drive.stop()
                 self.pickup_phase = 6
                 
             elif self.pickup_phase == 6:
