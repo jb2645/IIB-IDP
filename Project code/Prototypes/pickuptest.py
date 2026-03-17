@@ -69,15 +69,19 @@ if __name__ == "__main__":
         #sleep(1)
         #Robot.stowGrabber()
         #sleep(1)
-        #Robot.release()
-        #sleep(1)
-       # Robot.deployGrabber()
-        Robot.pickup()
+        Robot.release()
+        Robot.setvert(0)
         sleep(2)
+        print("s")
+        
+        Robot.setvert(20)
+        Robot.grab()
+        sleep(2)
+        print("p")
         
         
         #print(Robot.DetermineColour())
-        print(Robot.getDistance("F"), Robot.getDistance("R"))
+        #print(Robot.getDistance("F"), Robot.getDistance("R"))
         #Robot.putdown()
         
         sleep(0.5)

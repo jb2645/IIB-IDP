@@ -62,6 +62,9 @@ class Rover:
         
     def deployGrabber(self):
         self.verticalservo.setrotation(10)
+        
+    def setvert(self, num):
+        self.verticalservo.setrotation(num)
 
     def stowGrabber(self):
         self.verticalservo.setrotation(65)

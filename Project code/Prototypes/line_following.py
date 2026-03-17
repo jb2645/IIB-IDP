@@ -183,6 +183,8 @@ class Path: #Main state machine controlling behaviour
                     self.pos.heading = 3    # Now heading West
                     self.state = "SENSING"
                     self.pos_state = "OUTER_LOOP"
+                    self.drive.stowGrabber()
+                    self.drive.grab()
             else:
                 self.follower.adjust()
 

@@ -40,7 +40,7 @@ class Servo:                                 #defines servo class for controllin
         #lineraly interpolate rotation to correct value
         
         u16_level = int((rotation / 270) * (self.max - self.min) + self.min )
-        print(u16_level)
+        print(rotation)
         self.pwm_pin.duty_u16(u16_level)
     
 

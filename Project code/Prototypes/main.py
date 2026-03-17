@@ -46,7 +46,7 @@ def button_pressed(pin):
 button_pin = 22
 button = Pin(button_pin, Pin.IN, Pin.PULL_DOWN)
 button.irq(trigger=Pin.IRQ_RISING, handler=button_pressed)
-
+    
 if __name__ == "__main__":
     while True:
         motorR = Motor(dirPin=4, PWMPin=5)#check values later
@@ -63,7 +63,6 @@ if __name__ == "__main__":
         pos = Position(grid, end_nodes)
         
         path = Path(Robot, sensors, pos, follower)
-    
         # Main outer loop
         while running:
             
