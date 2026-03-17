@@ -1,5 +1,6 @@
 #Other class creation for interfacing with components
 from machine import Pin, PWM
+from utime import sleep
 
 class Motor:
     def __init__(self, dirPin, PWMPin):
@@ -30,12 +31,25 @@ class Motor:
             print("Invalid motor speed input")
         
 class Servo:                                 #defines servo class for controlling any actuators in the design
+    def __init__(self, PWMPin, rotation = 0):
         self.pwm_pin = PWM(Pin(PWMPin), 50)
         self.min = 1638
         self.max = 8191
+        self.rotation = rotation
         
            
     def setrotation(self, rotation):
+        if rotation < self.rotation:  #set direction
+            direction = -5
+            
+        else:
+            direction = 5
+            
+        while self.rotation != rotation:
+            self.rotation += direction
+            u16_level = int((self.rotation / 270) * (self.max - self.min) + self.min )         #lineraly interpolate rotation to correct value
+            self.pwm_pin.duty_u16(u16_level)
+            sleep(0.05)
     
 
 class Optocoupler:                              #groups optocouple sensor inputs into single class
