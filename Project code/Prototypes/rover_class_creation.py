@@ -61,7 +61,7 @@ class Rover:
         return distance
         
     def deployGrabber(self):
-        self.verticalservo.setrotation(0)
+        self.verticalservo.setrotation(15)
         
     def setvert(self, num):
         self.verticalservo.setrotation(num)
@@ -88,12 +88,13 @@ class Rover:
     def pickup(self): #picks up block and stows when rover is in correct position
         self.isholdingblock = True
         self.release()
-        sleep(0.4)
-        self.deployGrabber()
         sleep(0.5)
+        self.deployGrabber()
+        sleep(1.5)
         self.grab()
         sleep(0.5)
-        self.raiseGrabber()        
+        self.raiseGrabber()
+        sleep(1)
         
     def putdown(self):
         self.blueled.value(0)       #switch off all LEDs
@@ -148,13 +149,13 @@ class Rover:
     def turnleft(self):
         self.right.Forward(85)
         self.left.Reverse(75)
-        sleep (1.1)
+        sleep (0.95)
         self.stop()
         
     def turnright(self):
         self.left.Forward(85)
         self.right.Reverse(75)
-        sleep (1.1)
+        sleep (0.95)
         self.stop()
         
     def blockturnleft(self):
