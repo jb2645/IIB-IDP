@@ -5,12 +5,7 @@ from general_component_classes import *
 from rover_class_creation import * 
 import time
 
-<<<<<<< HEAD
-DEBUG = True
-=======
-
 DEBUG = False
->>>>>>> a376f29041fedb0a88afae7a5916e62c886e621e
 def debug_print(*args):
     if DEBUG:
         print(*args)
@@ -378,6 +373,7 @@ class Path: #Main state machine controlling behaviour
                     if self.distance < 249:
                         # Block detected - switch to pickup mode
                         self.state = "PICKUP"
+                        self.pickup_phase = 0
                         self.drive.drive_onto_junction()
                         self.drive.turnright()
                         self.save_position()
@@ -385,55 +381,78 @@ class Path: #Main state machine controlling behaviour
                     # Mark this node as checked
                     self.checked_nodes.add(current)
 
-
+        
         elif self.state == "PICKUP":
-            blockdistance = self.drive.getDistance("F")
-            debug_print(blockdistance)
-            
-            if blockdistance > 300 and self.drive.GetBlockStatus() == False and self.noblock == False:
-                # No block found - turn around
-                self.noblock = True
-                if self.noblock == True:
-                    # No block was found - return to route
+            if self.pickup_phase == 0:
+                # Phase 0: Stop and prepare
+                self.drive.stop()
+                sleep(0.1)
+                self.pickup_phase = 1
+                
+            elif self.pickup_phase == 1:
+                # Phase 1: Approach block or detect no block
+                blockdistance = self.drive.getDistance("F")
+                debug_print(f"Block distance: {blockdistance}")
+                
+                    
+                if blockdistance > 300:
+                    # No block found - return to route
+                    debug_print("No block detected, returning")
                     self.drive.drive_onto_junction()
                     if self.pos.row in [1, 7]:
                         self.drive.reverseright()
                     else:
                         self.drive.reverseleft()
                     self.state = "SENSING"
-                    self.noblock = False
-                debug_print(1)
-            
-            
-            if blockdistance < 38 and self.drive.GetBlockStatus() == False:
-                # Close enough to pickup, grabs block and turns around
-                self.drive.stop()
-                self.drive.pickup()
-                debug_print("Picked up")
-                self.drive.drive(-60, -60)
-                sleep(0.2)
-                self.drive.stowGrabber()
-                sleep(0.2)
-                self.drive.RightUTurn()
-                self.drive.drive(-60, -60)
-                sleep(0.2)
-
-                         
-            elif is_new_junction:
-                sleep(0.1)
-                # Block picked up - go to dropoff
-                self.follower.setbasespeed(80)
-                self.state = "DROPOFF"
-                self.current_row = self.pos.row
-                self.colour = self.drive.DetermineColour()
+                    self.pickup_phase = 0  # Reset for next time
                 
-                self.noblock = True
-            
-            else:
-                self.follower.setbasespeed(60)
-                self.follower.adjust()
-                debug_print(3)
-
+                    
+                else:
+                    print("ADJUSTING")
+                    # Still approaching - keep driving slowly
+                    self.follower.adjust()
+                    sleep(2)
+                    self.drive.stop()
+                    self.pickup_phase = 2
+                    
+            elif self.pickup_phase == 2:
+                # Phase 2: Execute pickup sequence
+                debug_print("Executing pickup")
+                self.drive.pickup()
+                sleep(0.2)  # Extra settling time after pickup
+                self.pickup_phase = 3
+                
+            elif self.pickup_phase == 3:
+                # Phase 3: Reverse slightly
+                debug_print("Reversing")
+                self.drive.drive(-60, -60)
+                sleep(0.3)
+                self.drive.stop()
+                sleep(0.1)
+                self.pickup_phase = 4
+                
+            elif self.pickup_phase == 4:
+                # Phase 4: Stow grabber
+                debug_print("Stowing grabber")
+                self.drive.stowGrabber()
+                sleep(0.3)
+                self.pickup_phase = 5
+                
+            elif self.pickup_phase == 5:
+                # Phase 5: U-turn
+                debug_print("U-turn")
+                self.drive.RightUTurn()
+                sleep(0.1)
+                self.pickup_phase = 6
+                
+            elif self.pickup_phase == 6:
+                # Phase 6: Determine colour and transition to DROPOFF
+                self.colour = self.drive.DetermineColour()
+                self.current_row = self.pos.row
+                debug_print(f"Block colour: {self.colour}, from row: {self.current_row}")
+                self.follower.setbasespeed(80)
+                self.pickup_phase = 0  # Reset for next pickup
+                self.state = "DROPOFF"
                 
         
         elif self.state == "PUTDOWN": #place block
