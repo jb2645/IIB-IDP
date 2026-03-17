@@ -57,7 +57,7 @@ class Rover:
             
         if direction == "F":
             distance = self.frontvl53l0.read()
-        print("distance")
+        #print("distance")
         return distance
         
     def deployGrabber(self):
@@ -145,29 +145,48 @@ class Rover:
         else:
             #print("No Object")
             return "None"        
+    
+    
+    def turnleft1(self):
+        self.right.Forward(85)
+        self.left.Reverse(75)
+        sleep (1)
+        self.stop()
         
     def turnleft(self):
+        self.right.Forward(85)
+        self.left.Reverse(75)
+        sleep(0.5)
         turning = True
         nearlythere = False
         while turning:
             sensorvalues = self.Optocoupler.getvalues()
             if sensorvalues[2] == 1:
                 nearlythere = True
-            if sensorvalues[3] == 1 and nearlythere = True:
+            if sensorvalues[3] == 1 and nearlythere == True:
                 self.stop()
                 turning = False
                 
     def turnright(self):
+        self.left.Forward(85)
+        self.right.Reverse(75)
+        sleep(0.5)
         turning = True
         nearlythere = False
         while turning:
             sensorvalues = self.Optocoupler.getvalues()
             if sensorvalues[3] == 1:
                 nearlythere = True
-            if sensorvalues[2] == 1 and nearlythere = True:
+            if sensorvalues[2] == 1 and nearlythere == True:
                 self.stop()
                 turning = False
 
+        
+    def turnright1(self):
+        self.left.Forward(85)
+        self.right.Reverse(75)
+        sleep (1)
+        self.stop()
         
     def blockturnleft(self):
         turning = True
