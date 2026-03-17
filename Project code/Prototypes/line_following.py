@@ -463,8 +463,16 @@ class Path: #Main state machine controlling behaviour
                 self.current_row = self.pos.row
                 debug_print(f"Block colour: {self.colour}, from row: {self.current_row}")
 
-                self.pickup_phase = 0  # Reset for next pickup
-                self.state = "DROPOFF"
+                if self.colour == 'None':
+                    self.drive.drive_onto_junction()
+                    if self.pos.row in [1, 7]:
+                        self.drive.turnright()
+                    else:
+                        self.drive.turnleft()
+                    self.state = "SENSING"
+                else:
+                    self.pickup_phase = 0  # Reset for next pickup
+                    self.state = "DROPOFF"
                 
         
         elif self.state == "PUTDOWN": #place block

@@ -77,7 +77,7 @@ class Rover:
         self.horizontalservo.setrotation(90)
         
     def release(self):
-        self.horizontalservo.setrotation(60)
+        self.horizontalservo.setrotation(65)
         
     def SetBlockStatus(self, isholdingblock):
         self.isholdingblock = isholdingblock
@@ -145,13 +145,6 @@ class Rover:
         else:
             #print("No Object")
             return "None"        
-    
-    
-    def turnleft1(self):
-        self.right.Forward(85)
-        self.left.Reverse(75)
-        sleep (0.97)
-        self.stop()
         
     def turnleft(self):
         turning = True
@@ -174,25 +167,29 @@ class Rover:
             if sensorvalues[2] == 1 and nearlythere = True:
                 self.stop()
                 turning = False
-            
-        
-    def turnright1(self):
-        self.left.Forward(85)
-        self.right.Reverse(75)
-        sleep (0.97)
-        self.stop()
+
         
     def blockturnleft(self):
-        self.right.Forward(85)
-        self.left.Reverse(75)
-        sleep (1.1)
-        self.stop()
+        turning = True
+        nearlythere = False
+        while turning:
+            sensorvalues = self.Optocoupler.getvalues()
+            if sensorvalues[2] == 1:
+                nearlythere = True
+            if sensorvalues[3] == 1 and nearlythere = True:
+                self.stop()
+                turning = False
         
     def blockturnright(self):
-        self.left.Forward(85)
-        self.right.Reverse(75)
-        sleep (1.1)
-        self.stop()        
+        turning = True
+        nearlythere = False
+        while turning:
+            sensorvalues = self.Optocoupler.getvalues()
+            if sensorvalues[3] == 1:
+                nearlythere = True
+            if sensorvalues[2] == 1 and nearlythere = True:
+                self.stop()
+                turning = False        
     
 
     def RightUTurn(self):
@@ -208,17 +205,6 @@ class Rover:
         self.left.Reverse(100)
         sleep (1.5)
         self.stop()
-
-    def motortest(self):
-        print("Test")
-        self.right.Forward(75)
-        sleep(2)
-        self.stop()
-        self.left.Forward(75)
-        sleep(2)
-        self.stop()
-        
-        #self.left.Forward(75)
         
     def reverseright(self):
         self.right.Forward(75)
@@ -231,69 +217,6 @@ class Rover:
         self.right.Reverse(85)
         sleep (0.8)
         self.stop()
-    
-    def reverseleft1(self):
-        turned = False
-        motorstarted = False
-        slowflag = False
-        nearlyturned = False
-        
-        while turned == False:
-            #self
-            if slowflag == False and motorstarted == False:
-                self.right.Forward(75)
-                self.left.Reverse(75)
-                motorstarted = True
-            
-            ###Test to verify which way round sensor detection needs to work
-            sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
-            
-            if sensorvalues[0] == 1:                   #slows down turn when outer sensor detects line desired 
-                if slowflag == False:
-                    sleep(0.08)
-                    slowflag = True
-                    self.right.Forward(60)
-                    self.left.Reverse(60)
-        
-            if sensorvalues[2] == 1:#to discard any anomalous readins in LH sensor
-                sleep(0.1)
-                nearlyturned = True
-                
-            if sensorvalues[3] == 1 and sensorvalues[1] == 0 and nearlyturned == True:
-                sleep(0.2)
-                turned = True
-                
-    def reverseright1(self):
-        turned = False
-        motorstarted = False
-        slowflag = False
-        nearlyturned = False
-        
-        while turned == False:
-            #self
-            if slowflag == False and motorstarted == False:
-                self.left.Forward(75)
-                self.right.Reverse(75)
-                motorstarted = True
-            
-            sensorvalues = self.Optocoupler.getvalues()          #finds the sensor values
-            
-            if sensorvalues[0] == 1:                   #slows down turn when outer sensor detects line desired 
-                if slowflag == False:
-                    sleep(0.08)
-                    slowflag = True
-                    self.left.Forward(60)
-                    self.right.Reverse(60)
-        
-            if sensorvalues[2] == 1:#to discard any anomalous readins in LH sensor
-                sleep(0.1)
-                nearlyturned = True
-                
-            if sensorvalues[3] == 1 and sensorvalues[1] == 0 and nearlyturned == True:
-                sleep(0.2)
-                turned = True
-                
-            #sleep(0.05)
             
             
     def drive_onto_junction(self, duration=0.23):
