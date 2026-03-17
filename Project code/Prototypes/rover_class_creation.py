@@ -88,13 +88,13 @@ class Rover:
     def pickup(self): #picks up block and stows when rover is in correct position
         self.isholdingblock = True
         self.release()
-        sleep(0.5)
+        sleep(0.1)
         self.deployGrabber()
-        sleep(1.5)
+        sleep(0.1)
         self.grab()
-        sleep(0.5)
+        sleep(0.1)
         self.raiseGrabber()
-        sleep(1)
+        sleep(0.5)
         
     def putdown(self):
         self.blueled.value(0)       #switch off all LEDs

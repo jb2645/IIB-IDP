@@ -1,5 +1,6 @@
 #Other class creation for interfacing with components
 from machine import Pin, PWM
+from utime import sleep
 
 class Motor:
     def __init__(self, dirPin, PWMPin):
@@ -34,13 +35,11 @@ class Servo:                                 #defines servo class for controllin
         self.pwm_pin = PWM(Pin(PWMPin), 50)
         self.min = 1638
         self.max = 8191
-        self.currentrot = rotation
+        self.rotation = rotation
         
            
     def setrotation(self, rotation):
-        #lineraly interpolate rotation to correct value
-        prev = self.rotation
-        if rotation < self.rotation:
+        if rotation < self.rotation:  #set direction
             direction = -1
             
         else:
@@ -48,7 +47,7 @@ class Servo:                                 #defines servo class for controllin
             
         while self.rotation != rotation:
             self.rotation += direction
-            u16_level = int((self.rotation / 270) * (self.max - self.min) + self.min )
+            u16_level = int((self.rotation / 270) * (self.max - self.min) + self.min )         #lineraly interpolate rotation to correct value
             self.pwm_pin.duty_u16(u16_level)
             sleep(0.02)
     
