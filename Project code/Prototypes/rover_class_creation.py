@@ -61,7 +61,7 @@ class Rover:
         return distance
         
     def deployGrabber(self):
-        self.verticalservo.setrotation(10)
+        self.verticalservo.setrotation(0)
         
     def setvert(self, num):
         self.verticalservo.setrotation(num)
