@@ -147,13 +147,36 @@ class Rover:
             return "None"        
     
     
-    def turnleft(self):
+    def turnleft1(self):
         self.right.Forward(85)
         self.left.Reverse(75)
         sleep (1)
         self.stop()
         
+    def turnleft(self):
+        turning = True
+        nearlythere = False
+        while turning:
+            sensorvalues = self.Optocoupler.getvalues()
+            if sensorvalues[2] == 1:
+                nearlythere = True
+            if sensorvalues[3] == 1 and nearlythere = True:
+                self.stop()
+                turning = False
+                
     def turnright(self):
+        turning = True
+        nearlythere = False
+        while turning:
+            sensorvalues = self.Optocoupler.getvalues()
+            if sensorvalues[3] == 1:
+                nearlythere = True
+            if sensorvalues[2] == 1 and nearlythere = True:
+                self.stop()
+                turning = False
+            
+        
+    def turnright1(self):
         self.left.Forward(85)
         self.right.Reverse(75)
         sleep (1)
