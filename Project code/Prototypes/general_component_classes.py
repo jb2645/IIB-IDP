@@ -40,16 +40,16 @@ class Servo:                                 #defines servo class for controllin
            
     def setrotation(self, rotation):
         if rotation < self.rotation:  #set direction
-            direction = -1
+            direction = -5
             
         else:
-            direction = 1
+            direction = 5
             
         while self.rotation != rotation:
             self.rotation += direction
             u16_level = int((self.rotation / 270) * (self.max - self.min) + self.min )         #lineraly interpolate rotation to correct value
             self.pwm_pin.duty_u16(u16_level)
-            sleep(0.02)
+            sleep(0.05)
     
 
 class Optocoupler:                              #groups optocouple sensor inputs into single class
