@@ -21,8 +21,8 @@ class LineFollow: #Handles line following with the inner sensors
 
 
         
-        self.speed_left_correct = max(0,min(100,base_speed + correction))
-        self.speed_right_correct = max(0,min(100,base_speed - correction))
+        self.speed_left_correct = max(-100,min(100,base_speed + correction))
+        self.speed_right_correct = max(-100,min(100,base_speed - correction))
         
     def setbasespeed(self,speed):
         self.base_speed = speed
@@ -122,7 +122,7 @@ class Path: #Main state machine controlling behaviour
         self.pos_state = "START"        # Position state 
         self.checked_nodes = set()      # Nodes already checked for blocks
 
-        self.checked_nodes.add((1, 0))
+        
 
         self.turn_count = 0             # Turns made in current phase
         self.start_nodes = 0            # Nodes passed leaving start
@@ -365,24 +365,30 @@ class Path: #Main state machine controlling behaviour
         
             
             
-            if self.pos.row in [1, 3, 6, 7]: #block detection checks
-                current = (self.pos.row, self.pos.node)
-                #[[1, 0], []]
-                if current not in self.checked_nodes:
-                    # Check for block using right-side distance sensor
-                    self.distance = self.drive.getDistance("R")
-                    print(self.distance)
-                    
-                    if self.distance < 249:
-                        # Block detected - switch to pickup mode
-                        self.state = "PICKUP"
-                        self.pickup_phase = 0
-                        self.drive.drive_onto_junction()
-                        self.drive.turnright()
-                        self.save_position()
-                    
+            if (self.pos.row in [1, 3, 7] and self.pos.heading == 0 or self.pos.row == 6 and self.pos.heading == 2) and self.pos.node in [1,2,3,4,5,6]: #block detection checks
+                if is_new_junction:
+                    self.drive.stop()
+                    current = (self.pos.row, self.pos.node)
+                    #[[1, 0], []]
+                    if current not in self.checked_nodes:
+                        # Check for block using right-side distance sensor
+                        self.distance = self.drive.getDistance("R")
+                        debug_print(self.distance)
+                        self.checked_nodes.add(current)
+                        
+                        if self.distance < 249:
+                            # Block detected - switch to pickup mode
+                            self.state = "PICKUP"
+                            self.pickup_phase = 0
+                            self.drive.drive_onto_junction()
+                            self.drive.turnright()
+                            self.save_position()
+                            
+                        else:
+                            self.drive.drive(60,60)
+                        
                     # Mark this node as checked
-                    self.checked_nodes.add(current)
+                    
 
         
         elif self.state == "PICKUP":
@@ -415,7 +421,7 @@ class Path: #Main state machine controlling behaviour
                     # Still approaching - keep driving slowly
                     self.follower.adjust()
                     self.time = time.ticks_ms()
-                    if time.ticks_diff(self.time,self.starttime)>2000:
+                    if time.ticks_diff(self.time,self.starttime)>1100:
                         self.drive.stop()
                         sleep(0.5)
                         self.pickup_phase = 2
@@ -437,9 +443,10 @@ class Path: #Main state machine controlling behaviour
             elif self.pickup_phase == 3:
                 # Phase 3: Reverse slightly
                 debug_print("Reversing")
-                self.drive.drive(-60, -60)
+                self.drive.drive(-60,-60)
                 sleep(0.3)
                 self.drive.stop()
+                
                 sleep(0.1)
                 self.pickup_phase = 4
                 
@@ -456,7 +463,7 @@ class Path: #Main state machine controlling behaviour
                 self.drive.RightUTurn()
                 sleep(0.1)
                 self.drive.drive(-60,-60)
-                sleep(0.3)
+                sleep(0.5)
                 self.drive.stop()
                 self.pickup_phase = 6
                 
@@ -468,38 +475,44 @@ class Path: #Main state machine controlling behaviour
                 debug_print(f"Block colour: {self.colour}, from row: {self.current_row}")
 
                 if self.colour == 'None':
-                    self.drive.drive_onto_junction()
-                    if self.pos.row in [1, 7]:
-                        self.drive.turnright()
-                    else:
-                        self.drive.turnleft()
-                    self.state = "SENSING"
+                    if is_new_junction:
+                        self.drive.drive_onto_junction()
+                        if self.pos.row in [1, 3, 6]:
+                            self.drive.turnright()
+                        else:
+                            self.drive.turnleft()
+                        self.state = "SENSING"
                 else:
                     self.pickup_phase = 0  # Reset for next pickup
                     self.state = "DROPOFF"
                 
         
         elif self.state == "PUTDOWN": #place block
-            if is_new_junction and self.escaped == False:
+            if self.escaped == False:
                 sleep(0.1)
                 # Drive forward slightly then put down block
-                self.drive.drive(70, 70)
-                sleep(0.3)
+                self.drive.drive(60, 60)
+                sleep(0.5)
                 self.drive.stop()
                 self.drive.putdown()
+                self.drive.drive(-60,-60)
+                sleep(0.3)
 
                 
                 # U-turn to exit bay
                 self.drive.LeftUTurn()
                 self.pos.U_turn()
+                self.drive.drive(-60,-60)
+                sleep(0.5)
+                self.drive.stop()
+                
                 
                 # Drive forward to clear bay
-                self.drive.drive(70, 70)
                 #sleep(0.5)
                 self.escaped = True
                 
             
-            elif event == "JUNCTION":
+            elif is_new_junction:
                 self.state = "RETURNING"
                 self.escaped = False
             else:
@@ -511,6 +524,7 @@ class Path: #Main state machine controlling behaviour
                 if self.dropoff_turn_count == 0:
                     if is_new_junction:
                     # Initial turn to leave pickup area
+                        self.drive.drive_onto_junction()
                         self.drive.blockturnleft()
                         self.pos.U_turn()
                         self.dropoff_turn_count += 1
@@ -562,6 +576,7 @@ class Path: #Main state machine controlling behaviour
                 if self.dropoff_turn_count == 0:
                     if is_new_junction:
                         # Initial turn to leave pickup area
+                            self.drive.drive_onto_junction()
                             self.drive.blockturnright()
                             self.pos.U_turn()
                             self.dropoff_turn_count += 1
@@ -613,6 +628,7 @@ class Path: #Main state machine controlling behaviour
                 if self.dropoff_turn_count == 0:
                     if is_new_junction:
                     # Initial turn to leave pickup area
+                        self.drive.drive_onto_junction()
                         self.drive.blockturnright()
                         self.pos.U_turn()
                         self.dropoff_turn_count += 1
@@ -686,6 +702,7 @@ class Path: #Main state machine controlling behaviour
                 if self.dropoff_turn_count == 0:
                     if is_new_junction:
                     # Initial turn to leave pickup area
+                        self.drive.drive_onto_junction()
                         self.drive.blockturnleft()
                         self.pos.U_turn()
                         self.dropoff_turn_count += 1
@@ -764,8 +781,9 @@ class Path: #Main state machine controlling behaviour
                 self.pos.node = 0
             else:
                 # Other bays - turn left and reset
+                self.drive.drive_onto_junction()
                 self.drive.turnleft()
-                self.pos.turn_end(1)
+                #self.pos.turn_end(1)
                 self.turn_count = 0
             
             # Return to sensing state (pos_state unchanged)

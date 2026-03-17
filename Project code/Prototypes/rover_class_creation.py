@@ -67,7 +67,7 @@ class Rover:
         self.verticalservo.setrotation(num)
 
     def stowGrabber(self):
-        self.verticalservo.setrotation(60)
+        self.verticalservo.setrotation(70)
         
     def raiseGrabber(self):
         self.verticalservo.setrotation(20)
@@ -77,7 +77,7 @@ class Rover:
         self.horizontalservo.setrotation(90)
         
     def release(self):
-        self.horizontalservo.setrotation(65)
+        self.horizontalservo.setrotation(55)
         
     def SetBlockStatus(self, isholdingblock):
         self.isholdingblock = isholdingblock
@@ -158,12 +158,9 @@ class Rover:
         self.left.Reverse(75)
         sleep(0.5)
         turning = True
-        nearlythere = False
         while turning:
             sensorvalues = self.Optocoupler.getvalues()
-            if sensorvalues[2] == 1:
-                nearlythere = True
-            if sensorvalues[3] == 1 and nearlythere == True:
+            if sensorvalues[3] == 1:
                 self.stop()
                 turning = False
                 
@@ -175,9 +172,9 @@ class Rover:
         nearlythere = False
         while turning:
             sensorvalues = self.Optocoupler.getvalues()
-            if sensorvalues[3] == 1:
-                nearlythere = True
-            if sensorvalues[2] == 1 and nearlythere == True:
+            #if sensorvalues[3] == 1:
+                #nearlythere = True
+            if sensorvalues[2] == 1:
                 self.stop()
                 turning = False
 
@@ -189,41 +186,53 @@ class Rover:
         self.stop()
         
     def blockturnleft(self):
+        self.right.Forward(85)
+        self.left.Reverse(75)
+        sleep(0.6)
         turning = True
         nearlythere = False
         while turning:
             sensorvalues = self.Optocoupler.getvalues()
-            if sensorvalues[2] == 1:
-                nearlythere = True
-            if sensorvalues[3] == 1 and nearlythere = True:
+            #if sensorvalues[2] == 1:
+                #nearlythere = True
+            if sensorvalues[3] == 1:
                 self.stop()
                 turning = False
         
     def blockturnright(self):
+        self.left.Forward(85)
+        self.right.Reverse(75)
+        sleep(0.6)
         turning = True
-        nearlythere = False
         while turning:
             sensorvalues = self.Optocoupler.getvalues()
-            if sensorvalues[3] == 1:
-                nearlythere = True
-            if sensorvalues[2] == 1 and nearlythere = True:
+            if sensorvalues[2] == 1:
                 self.stop()
                 turning = False        
     
 
     def RightUTurn(self):
-        turned = False
+        turning= True
         self.left.Forward(100)
         self.right.Reverse(100)
-        sleep (1.5)
-        self.stop()
+        sleep(0.5)
+        while turning:
+            sensorvalues = self.Optocoupler.getvalues()
+            if sensorvalues[2] == 1:
+                self.stop()
+                turning = False    
+
         
     def LeftUTurn(self):
-        turned = False
+        turning = True
         self.right.Forward(100)
         self.left.Reverse(100)
-        sleep (1.5)
-        self.stop()
+        sleep(0.5)
+        while turning:
+            sensorvalues = self.Optocoupler.getvalues()
+            if sensorvalues[3] == 1:
+                self.stop()
+                turning = False    
         
     def reverseright(self):
         self.right.Forward(75)
