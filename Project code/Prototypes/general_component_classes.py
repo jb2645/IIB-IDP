@@ -30,18 +30,27 @@ class Motor:
             print("Invalid motor speed input")
         
 class Servo:                                 #defines servo class for controlling any actuators in the design
-    def __init__(self, PWMPin):
+    def __init__(self, PWMPin, rotation = 0):
         self.pwm_pin = PWM(Pin(PWMPin), 50)
         self.min = 1638
         self.max = 8191
+        self.currentrot = rotation
         
            
     def setrotation(self, rotation):
         #lineraly interpolate rotation to correct value
-        
-        u16_level = int((rotation / 270) * (self.max - self.min) + self.min )
-        print(rotation)
-        self.pwm_pin.duty_u16(u16_level)
+        prev = self.rotation
+        if rotation < self.rotation:
+            direction = -1
+            
+        else:
+            direction = 1
+            
+        while self.rotation != rotation:
+            self.rotation += direction
+            u16_level = int((self.rotation / 270) * (self.max - self.min) + self.min )
+            self.pwm_pin.duty_u16(u16_level)
+            sleep(0.02)
     
 
 class Optocoupler:                              #groups optocouple sensor inputs into single class
