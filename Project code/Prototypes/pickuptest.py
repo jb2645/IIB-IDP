@@ -73,7 +73,7 @@ if __name__ == "__main__":
         Robot.pickup()
         Robot.DetermineColour()
         
-        sleep(10)
+        sleep(5)
        # Robot.stowGrabber()
         
         
@@ -81,8 +81,3 @@ if __name__ == "__main__":
         #print(Robot.getDistance("F"), Robot.getDistance("R"))
         #Robot.putdown()
         
-        sleep(0.5)
-            
-
-
-        time.sleep(0.01)

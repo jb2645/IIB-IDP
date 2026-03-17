@@ -5,7 +5,12 @@ from general_component_classes import *
 from rover_class_creation import * 
 import time
 
+<<<<<<< HEAD
 DEBUG = True
+=======
+
+DEBUG = False
+>>>>>>> a376f29041fedb0a88afae7a5916e62c886e621e
 def debug_print(*args):
     if DEBUG:
         print(*args)
