@@ -57,7 +57,7 @@ class Rover:
             
         if direction == "F":
             distance = self.frontvl53l0.read()
-            
+        print("distance")
         return distance
         
     def deployGrabber(self):
@@ -67,10 +67,10 @@ class Rover:
         self.verticalservo.setrotation(num)
 
     def stowGrabber(self):
-        self.verticalservo.setrotation(40)
+        self.verticalservo.setrotation(60)
         
     def raiseGrabber(self):
-        self.verticalservo.setrotation(25)
+        self.verticalservo.setrotation(20)
         
         
     def grab(self):
@@ -85,7 +85,7 @@ class Rover:
     def GetBlockStatus(self):
         return self.isholdingblock
         
-    def pickup1(self):
+    def pickup(self):
         self.isholdingblock = True
         self.release()
         sleep(1)          # Increased
@@ -96,20 +96,6 @@ class Rover:
         self.raiseGrabber()
         sleep(1)          # Increased
         
-    def pickup(self):
-        self.isholdingblock = True
-        self.release()
-        print("release")
-        sleep(3)          # Increased
-        self.deployGrabber()
-        print("deploy")
-        sleep(3)          # Increased
-        self.grab()
-        print("grab")
-        sleep(3)          # Increased
-        self.raiseGrabber()
-        print("raise")
-        sleep(3)          # Increased
         
     def putdown(self):
         self.blueled.value(0)       #switch off all LEDs
