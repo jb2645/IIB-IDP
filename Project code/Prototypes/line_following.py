@@ -461,6 +461,7 @@ class Path: #Main state machine controlling behaviour
                 self.pickup_phase = 6
                 
             elif self.pickup_phase == 6:
+                self.follower.adjust()
                 # Phase 6: Determine colour and transition to DROPOFF
                 self.colour = self.drive.DetermineColour()
                 self.current_row = self.pos.row
