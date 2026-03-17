@@ -462,7 +462,7 @@ class Path: #Main state machine controlling behaviour
                 self.colour = self.drive.DetermineColour()
                 self.current_row = self.pos.row
                 debug_print(f"Block colour: {self.colour}, from row: {self.current_row}")
-                self.follower.setbasespeed(80)
+
                 self.pickup_phase = 0  # Reset for next pickup
                 self.state = "DROPOFF"
                 
@@ -472,8 +472,10 @@ class Path: #Main state machine controlling behaviour
                 sleep(0.1)
                 # Drive forward slightly then put down block
                 self.drive.drive(70, 70)
-                sleep(0.1)
+                sleep(0.3)
+                self.drive.stop()
                 self.drive.putdown()
+
                 
                 # U-turn to exit bay
                 self.drive.LeftUTurn()
@@ -495,10 +497,13 @@ class Path: #Main state machine controlling behaviour
             cr = self.current_row
             if cr == 1: 
                 if self.dropoff_turn_count == 0:
+                    if is_new_junction:
                     # Initial turn to leave pickup area
-                    self.drive.blockturnleft()
-                    self.pos.U_turn()
-                    self.dropoff_turn_count += 1
+                        self.drive.blockturnleft()
+                        self.pos.U_turn()
+                        self.dropoff_turn_count += 1
+                    else:
+                        self.follower.adjust
                 else:
                     if is_new_junction:
                         sleep(0.1)
@@ -521,21 +526,21 @@ class Path: #Main state machine controlling behaviour
                             if self.pos.node == 1 and self.colour == "Green":
                                 self.drive.drive_onto_junction()
                                 self.drive.turnright()
-                                self.pos.turn_end(0)
+                                #self.pos.turn_end(0)
                                 self.state = "PUTDOWN"
                                 self.dropoff_turn_count = 0
                             
                             elif self.pos.node == 3 and self.colour == "Yellow":
                                 self.drive.drive_onto_junction()
                                 self.drive.turnright()
-                                self.pos.turn_end(0)
+                                #self.pos.turn_end(0)
                                 self.state = "PUTDOWN"
                                 self.dropoff_turn_count = 0
                                 
                             elif self.pos.node == 4 and self.colour == "Red":
                                 self.drive.drive_onto_junction()
                                 self.drive.turnright()
-                                self.pos.turn_end(0)
+                                #self.pos.turn_end(0)
                                 self.state = "PUTDOWN"
                                 self.dropoff_turn_count = 0
                     else:
@@ -543,8 +548,13 @@ class Path: #Main state machine controlling behaviour
             
             elif cr == 3:
                 if self.dropoff_turn_count == 0:
-                    self.drive.blockturnright()
-                    self.dropoff_turn_count += 1
+                    if is_new_junction:
+                        # Initial turn to leave pickup area
+                            self.drive.blockturnright()
+                            self.pos.U_turn()
+                            self.dropoff_turn_count += 1
+                    else:
+                            self.follower.adjust
                 else:
                     if is_new_junction:
                         sleep(0.1)
@@ -567,21 +577,21 @@ class Path: #Main state machine controlling behaviour
                             if self.pos.node == 1 and self.colour == "Green":
                                 self.drive.drive_onto_junction()
                                 self.drive.turnleft()
-                                self.pos.turn_end(1)
+                                #self.pos.turn_end(1)
                                 self.state = "PUTDOWN"
                                 self.dropoff_turn_count = 0
                             
                             elif self.pos.node == 3 and self.colour == "Yellow":
                                 self.drive.drive_onto_junction()
                                 self.drive.turnleft()
-                                self.pos.turn_end(1)
+                                #self.pos.turn_end(1)
                                 self.state = "PUTDOWN"
                                 self.dropoff_turn_count = 0
                                 
                             elif self.pos.node == 4 and self.colour == "Blue":
                                 self.drive.drive_onto_junction()
                                 self.drive.turnleft()
-                                self.pos.turn_end(1)
+                                #self.pos.turn_end(1)
                                 self.state = "PUTDOWN"
                                 self.dropoff_turn_count = 0
                     else:
@@ -589,9 +599,13 @@ class Path: #Main state machine controlling behaviour
             
             elif cr == 6:
                 if self.dropoff_turn_count == 0:
-                    self.drive.blockturnright()
-                    self.pos.U_turn()
-                    self.dropoff_turn_count += 1
+                    if is_new_junction:
+                    # Initial turn to leave pickup area
+                        self.drive.blockturnright()
+                        self.pos.U_turn()
+                        self.dropoff_turn_count += 1
+                    else:
+                        self.follower.adjust
                 else:
                     if is_new_junction:
                         sleep(0.1)
@@ -635,21 +649,21 @@ class Path: #Main state machine controlling behaviour
                             if self.pos.node == 0 and self.colour == "Blue":
                                 self.drive.drive_onto_junction()
                                 self.drive.turnright()
-                                self.pos.turn_end(0)
+                                #self.pos.turn_end(0)
                                 self.state = "PUTDOWN"
                                 self.dropoff_turn_count = 0
                                 
                             elif self.pos.node == 1 and self.colour == "Green":
                                 self.drive.drive_onto_junction()
                                 self.drive.turnright()
-                                self.pos.turn_end(0)
+                                #self.pos.turn_end(0)
                                 self.state = "PUTDOWN"
                                 self.dropoff_turn_count = 0
                             
                             elif self.pos.node == 3 and self.colour == "Yellow":
                                 self.drive.drive_onto_junction()
                                 self.drive.turnright()
-                                self.pos.turn_end(0)
+                                #self.pos.turn_end(0)
                                 self.state = "PUTDOWN"
                                 self.dropoff_turn_count = 0
                     else:
@@ -658,9 +672,13 @@ class Path: #Main state machine controlling behaviour
             
             elif cr == 7:
                 if self.dropoff_turn_count == 0:
-                    self.drive.blockturnleft()
-                    self.pos.U_turn()
-                    self.dropoff_turn_count += 1
+                    if is_new_junction:
+                    # Initial turn to leave pickup area
+                        self.drive.blockturnleft()
+                        self.pos.U_turn()
+                        self.dropoff_turn_count += 1
+                    else:
+                        self.follower.adjust
                 else:
                     if is_new_junction:
                         sleep(0.1)
@@ -704,21 +722,21 @@ class Path: #Main state machine controlling behaviour
                             if self.pos.node == 0 and self.colour == "Blue":
                                 self.drive.drive_onto_junction()
                                 self.drive.turnright()
-                                self.pos.turn_end(0)
+                                #self.pos.turn_end(0)
                                 self.state = "PUTDOWN"
                                 self.dropoff_turn_count = 0
                                 
                             elif self.pos.node == 1 and self.colour == "Green":
                                 self.drive.drive_onto_junction()
                                 self.drive.turnright()
-                                self.pos.turn_end(0)
+                                #self.pos.turn_end(0)
                                 self.state = "PUTDOWN"
                                 self.dropoff_turn_count = 0
                             
                             elif self.pos.node == 3 and self.colour == "Yellow":
                                 self.drive.drive_onto_junction()
                                 self.drive.turnright()
-                                self.pos.turn_end(0)
+                                #self.pos.turn_end(0)
                                 self.state = "PUTDOWN"
                                 self.dropoff_turn_count = 0
                     else:
