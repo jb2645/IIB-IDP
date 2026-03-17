@@ -5,7 +5,7 @@ from general_component_classes import *
 from rover_class_creation import * 
 import time
 
-DEBUG = False
+DEBUG = True
 def debug_print(*args):
     if DEBUG:
         print(*args)
@@ -383,6 +383,7 @@ class Path: #Main state machine controlling behaviour
 
         elif self.state == "PICKUP":
             blockdistance = self.drive.getDistance("F")
+            debug_print(blockdistance)
             
             if blockdistance > 300 and self.drive.GetBlockStatus() == False and self.noblock == False:
                 # No block found - turn around
@@ -403,6 +404,7 @@ class Path: #Main state machine controlling behaviour
                 # Close enough to pickup, grabs block and turns around
                 self.drive.stop()
                 self.drive.pickup()
+                debug_print("Picked up")
                 self.drive.drive(-60, -60)
                 sleep(0.2)
                 self.drive.stowGrabber()
