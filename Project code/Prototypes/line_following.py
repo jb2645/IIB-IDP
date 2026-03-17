@@ -422,15 +422,16 @@ class Path: #Main state machine controlling behaviour
                     
             elif self.pickup_phase == 2:
                 # Phase 2: Execute pickup sequence
-                debug_print("Executing pickup")
-                self.drive.release()
-                sleep(1)          # Increased
-                self.drive.deployGrabber()
-                sleep(1)          # Increased
-                self.drive.grab()
-                sleep(1)          # Increased
-                self.drive.raiseGrabber()
-                sleep(1)       
+                #debug_print("Executing pickup")
+                #self.drive.release()
+                #sleep(1)          # Increased
+                #self.drive.deployGrabber()
+                #sleep(1)          # Increased
+                #self.drive.grab()
+                #sleep(1)          # Increased
+                #self.drive.raiseGrabber()
+                #sleep(1)
+                self.drive.pickup()
                 self.pickup_phase = 3
                 
             elif self.pickup_phase == 3:

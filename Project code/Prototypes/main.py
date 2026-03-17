@@ -52,8 +52,8 @@ if __name__ == "__main__":
         motorR = Motor(dirPin=4, PWMPin=5)#check values later
         motorL = Motor(dirPin=7, PWMPin=6)
         sensors = Optocoupler(12, 21, 14, 20)
-        verticalservo = Servo(13)
-        horizontalservo = Servo(15)
+        verticalservo = Servo(15)
+        horizontalservo = Servo(13)
         Robot = Rover(motorL, motorR, sensors, horizontalservo, verticalservo)
         follower = LineFollow(Robot, sensors)
 

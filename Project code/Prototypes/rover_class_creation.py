@@ -85,7 +85,7 @@ class Rover:
     def GetBlockStatus(self):
         return self.isholdingblock
         
-    def pickup(self):
+    def pickup1(self):
         self.isholdingblock = True
         self.release()
         sleep(1)          # Increased
@@ -95,6 +95,21 @@ class Rover:
         sleep(1)          # Increased
         self.raiseGrabber()
         sleep(1)          # Increased
+        
+    def pickup(self):
+        self.isholdingblock = True
+        self.release()
+        print("release")
+        sleep(3)          # Increased
+        self.deployGrabber()
+        print("deploy")
+        sleep(3)          # Increased
+        self.grab()
+        print("grab")
+        sleep(3)          # Increased
+        self.raiseGrabber()
+        print("raise")
+        sleep(3)          # Increased
         
     def putdown(self):
         self.blueled.value(0)       #switch off all LEDs
