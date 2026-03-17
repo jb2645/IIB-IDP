@@ -141,6 +141,9 @@ class Path: #Main state machine controlling behaviour
 
         self.escaped = False
         
+        self.time = 0
+        self.starttime = 0
+        
     def save_position(self):
         """Save current pos_state for returning after delivery"""
         self.saved_pos_state = self.pos_state
@@ -388,6 +391,7 @@ class Path: #Main state machine controlling behaviour
                 self.drive.stop()
                 sleep(0.1)
                 self.pickup_phase = 1
+                self.starttime = time.ticks_ms()
                 
             elif self.pickup_phase == 1:
                 # Phase 1: Approach block or detect no block
@@ -408,18 +412,25 @@ class Path: #Main state machine controlling behaviour
                 
                     
                 else:
-                    print("ADJUSTING")
                     # Still approaching - keep driving slowly
                     self.follower.adjust()
-                    sleep(2)
-                    self.drive.stop()
-                    self.pickup_phase = 2
+                    self.time = time.ticks_ms()
+                    if time.ticks_diff(self.time,self.starttime)>2000:
+                        self.drive.stop()
+                        sleep(0.5)
+                        self.pickup_phase = 2
                     
             elif self.pickup_phase == 2:
                 # Phase 2: Execute pickup sequence
                 debug_print("Executing pickup")
-                self.drive.pickup()
-                sleep(0.2)  # Extra settling time after pickup
+                self.drive.release()
+                sleep(1)          # Increased
+                self.drive.deployGrabber()
+                sleep(1)          # Increased
+                self.drive.grab()
+                sleep(1)          # Increased
+                self.drive.raiseGrabber()
+                sleep(1)       
                 self.pickup_phase = 3
                 
             elif self.pickup_phase == 3:

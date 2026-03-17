@@ -67,7 +67,7 @@ class Rover:
         self.verticalservo.setrotation(num)
 
     def stowGrabber(self):
-        self.verticalservo.setrotation(65)
+        self.verticalservo.setrotation(40)
         
     def raiseGrabber(self):
         self.verticalservo.setrotation(25)
@@ -88,13 +88,13 @@ class Rover:
     def pickup(self):
         self.isholdingblock = True
         self.release()
-        sleep(0.5)          # Increased
+        sleep(1)          # Increased
         self.deployGrabber()
-        sleep(0.6)          # Increased
+        sleep(1)          # Increased
         self.grab()
-        sleep(0.5)          # Increased
+        sleep(1)          # Increased
         self.raiseGrabber()
-        sleep(0.8)          # Increased
+        sleep(1)          # Increased
         
     def putdown(self):
         self.blueled.value(0)       #switch off all LEDs
@@ -149,13 +149,13 @@ class Rover:
     def turnleft(self):
         self.right.Forward(85)
         self.left.Reverse(75)
-        sleep (0.95)
+        sleep (0.97)
         self.stop()
         
     def turnright(self):
         self.left.Forward(85)
         self.right.Reverse(75)
-        sleep (0.95)
+        sleep (0.97)
         self.stop()
         
     def blockturnleft(self):
