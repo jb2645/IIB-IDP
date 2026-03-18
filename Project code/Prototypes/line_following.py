@@ -280,7 +280,10 @@ class Path: #Main state machine controlling behaviour
                             self.pos.U_turn()
                             self.drive.LeftUTurn()
                             sleep(0.1)
-                            self.pos.node = 6
+                            self.drive.drive(-60,-60)
+                            sleep(0.2)
+                            self.drive.stop()
+                            
                         else:
                             self.drive.drive(60,60)
                     elif tc == 6:
@@ -311,7 +314,9 @@ class Path: #Main state machine controlling behaviour
                             self.pos.U_turn()
                             self.drive.RightUTurn()
                             sleep(0.1)
-                            self.pos.node = 6 
+                            self.drive.drive(-60,-60)
+                            sleep(0.2)
+                            self.drive.stop()
                         else:
                             self.drive.drive(60,60)
                             
@@ -337,7 +342,7 @@ class Path: #Main state machine controlling behaviour
                     elif tc == 11:
                         self.pos.row = 4
                         self.pos.heading = 0
-                        self.pos.node = 0
+                        self.pos.node = 1
                         if nodestate == "TURN":
                             self.turn_count += 1
                             self.drive.drive_onto_junction()
@@ -365,9 +370,10 @@ class Path: #Main state machine controlling behaviour
         
             
             
-            if (self.pos.row in [1, 3, 7] and self.pos.heading == 0 or self.pos.row == 6 and self.pos.heading == 2) and self.pos.node in [1,2,3,4,5,6]: #block detection checks
+            if (self.pos.row in [1, 7] and self.pos.heading == 0 or self.pos.row in [3,6] and self.pos.heading == 2) and self.pos.node in [1,2,3,4,5,6]: #block detection checks
                 if is_new_junction:
                     self.drive.stop()
+                    sleep(0.1)
                     current = (self.pos.row, self.pos.node)
                     #[[1, 0], []]
                     if current not in self.checked_nodes:
@@ -376,7 +382,7 @@ class Path: #Main state machine controlling behaviour
                         debug_print(self.distance)
                         self.checked_nodes.add(current)
                         
-                        if self.distance < 249:
+                        if self.distance < 245:
                             # Block detected - switch to pickup mode
                             self.state = "PICKUP"
                             self.pickup_phase = 0
@@ -421,9 +427,9 @@ class Path: #Main state machine controlling behaviour
                     # Still approaching - keep driving slowly
                     self.follower.adjust()
                     self.time = time.ticks_ms()
-                    if time.ticks_diff(self.time,self.starttime)>1100:
+                    if time.ticks_diff(self.time,self.starttime)>1000:
                         self.drive.stop()
-                        sleep(0.5)
+                        sleep(0.1)
                         self.pickup_phase = 2
                     
             elif self.pickup_phase == 2:
@@ -492,16 +498,20 @@ class Path: #Main state machine controlling behaviour
                 sleep(0.1)
                 # Drive forward slightly then put down block
                 self.drive.drive(60, 60)
-                sleep(0.5)
+                sleep(1.1)
                 self.drive.stop()
+                self.sleep(0.1)
                 self.drive.putdown()
                 self.drive.drive(-60,-60)
                 sleep(0.3)
+                self.drive.stop()
 
                 
                 # U-turn to exit bay
-                self.drive.LeftUTurn()
-                self.pos.U_turn()
+                if self.colour == "Red":
+                    self.drive.RightUTurn()
+                else:
+                    self.drive.LeftUTurn
                 self.drive.drive(-60,-60)
                 sleep(0.5)
                 self.drive.stop()
@@ -578,7 +588,7 @@ class Path: #Main state machine controlling behaviour
                         # Initial turn to leave pickup area
                             self.drive.drive_onto_junction()
                             self.drive.blockturnright()
-                            self.pos.U_turn()
+                            #self.pos.U_turn()
                             self.dropoff_turn_count += 1
                     else:
                             self.follower.adjust
@@ -586,6 +596,11 @@ class Path: #Main state machine controlling behaviour
                     if is_new_junction:
                         sleep(0.1)
                         nodestate = self.pos.on_node()
+                        #print(nodestate)
+                        #print(self.colour)
+                        #print(self.pos.row)
+                        #print(self.pos.node)
+                        #print(self.pos.heading)
                         
                         # Red bay - first turn
                         if nodestate == "TURN" and self.colour == "Red":
@@ -704,7 +719,7 @@ class Path: #Main state machine controlling behaviour
                     # Initial turn to leave pickup area
                         self.drive.drive_onto_junction()
                         self.drive.blockturnleft()
-                        self.pos.U_turn()
+                        #self.pos.U_turn()
                         self.dropoff_turn_count += 1
                     else:
                         self.follower.adjust
@@ -779,10 +794,12 @@ class Path: #Main state machine controlling behaviour
                 sleep(0.3)
                 self.turn_count = 1
                 self.pos.node = 0
+                self.heading = 0
             else:
                 # Other bays - turn left and reset
                 self.drive.drive_onto_junction()
                 self.drive.turnleft()
+                self.heading = 3
                 #self.pos.turn_end(1)
                 self.turn_count = 0
             

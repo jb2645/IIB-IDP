@@ -87,6 +87,7 @@ class Rover:
         
     def pickup(self):
         self.isholdingblock = True
+        sleep(0.2)
         self.release()
         sleep(1)          # Increased
         self.deployGrabber()
