@@ -67,11 +67,11 @@ if __name__ == "__main__":
         #sleep(1)
         #print(Robot.DetermineColour())
         #sleep(1)
-        #Robot.stowGrabber()
+       # Robot.stowGrabber()
         #sleep(1)
        # Robot.release()
         Robot.pickup()
-        Robot.DetermineColour()
+        #Robot.DetermineColour()
         
         sleep(5)
        # Robot.stowGrabber()
