@@ -121,6 +121,7 @@ class Path: #Main state machine controlling behaviour
         self.state = "LEAVING_START"    # Main state machine state
         self.pos_state = "START"        # Position state 
         self.checked_nodes = set()      # Nodes already checked for blocks
+        self.collected = 0
 
         
 
@@ -278,7 +279,7 @@ class Path: #Main state machine controlling behaviour
                             # U-turn at end of bay
                             self.turn_count += 1
                             self.pos.U_turn()
-                            self.drive.LeftUTurn()
+                            self.drive.LeftUTurnr()
                             sleep(0.1)
                             self.drive.drive(-60,-60)
                             sleep(0.2)
@@ -312,7 +313,7 @@ class Path: #Main state machine controlling behaviour
                             # U-turn at end of bay
                             self.turn_count += 1
                             self.pos.U_turn()
-                            self.drive.RightUTurn()
+                            self.drive.RightUTurnr()
                             sleep(0.1)
                             self.drive.drive(-60,-60)
                             sleep(0.2)
@@ -500,7 +501,7 @@ class Path: #Main state machine controlling behaviour
                 self.drive.drive(60, 60)
                 sleep(1.1)
                 self.drive.stop()
-                self.sleep(0.1)
+                sleep(0.1)
                 self.drive.putdown()
                 self.drive.drive(-60,-60)
                 sleep(0.3)
@@ -511,7 +512,7 @@ class Path: #Main state machine controlling behaviour
                 if self.colour == "Red":
                     self.drive.RightUTurn()
                 else:
-                    self.drive.LeftUTurn
+                    self.drive.LeftUTurn()
                 self.drive.drive(-60,-60)
                 sleep(0.5)
                 self.drive.stop()
@@ -520,6 +521,7 @@ class Path: #Main state machine controlling behaviour
                 # Drive forward to clear bay
                 #sleep(0.5)
                 self.escaped = True
+                self.collected +=1
                 
             
             elif is_new_junction:
@@ -794,16 +796,22 @@ class Path: #Main state machine controlling behaviour
                 sleep(0.3)
                 self.turn_count = 1
                 self.pos.node = 0
-                self.heading = 0
+                self.pos.heading = 0
             else:
                 # Other bays - turn left and reset
                 self.drive.drive_onto_junction()
                 self.drive.turnleft()
-                self.heading = 3
+                self.pos.heading = 3
+                if self.colour == "Red":
+                    self.pos.node = 4
+                    self.pos.row = 0
+
                 #self.pos.turn_end(1)
                 self.turn_count = 0
             
             # Return to sensing state (pos_state unchanged)
+            if self.collected > 3 or (3,1) in self.checked_nodes:
+                self.pos_state = "RAMP"
             self.state = "SENSING"
 
 

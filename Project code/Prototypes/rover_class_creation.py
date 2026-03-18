@@ -67,7 +67,7 @@ class Rover:
         self.verticalservo.setrotation(num)
 
     def stowGrabber(self):
-        self.verticalservo.setrotation(70)
+        self.verticalservo.setrotation(80)
         
     def raiseGrabber(self):
         self.verticalservo.setrotation(20)
@@ -233,7 +233,30 @@ class Rover:
             sensorvalues = self.Optocoupler.getvalues()
             if sensorvalues[3] == 1:
                 self.stop()
+                turning = False
+                
+    def RightUTurnr(self):
+        turning= True
+        self.left.Forward(100)
+        self.right.Reverse(100)
+        sleep(0.9)
+        while turning:
+            sensorvalues = self.Optocoupler.getvalues()
+            if sensorvalues[2] == 1:
+                self.stop()
                 turning = False    
+
+        
+    def LeftUTurnr(self):
+        turning = True
+        self.right.Forward(100)
+        self.left.Reverse(100)
+        sleep(0.9)
+        while turning:
+            sensorvalues = self.Optocoupler.getvalues()
+            if sensorvalues[3] == 1:
+                self.stop()
+                turning = False  
         
     def reverseright(self):
         self.right.Forward(75)
